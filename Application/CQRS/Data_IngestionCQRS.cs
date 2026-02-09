@@ -1,0 +1,70 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+using Application.Contracts;
+using Application.Contracts.Data_Ingestion;
+using Application.DTOS;
+
+using Domain.Entites;
+
+using FluentValidation;
+
+using Hangfire;
+using Hangfire.Dashboard;
+
+using MediatR;
+
+using Microsoft.AspNetCore.Http;
+
+namespace Application.CQRS;
+
+//commands and queries
+public record UploadFileCommand(IFormFile File) : IRequest<Guid>;
+public record ProcessFileCommand(Guid BatchId, string FilePath) : IRequest;
+public record GetUploadStatusQuery(Guid BatchId) : IRequest<UploadStatusDto?>;
+
+//varlidators
+public class UploadFileCommandValidator : AbstractValidator<UploadFileCommand>
+{
+    public UploadFileCommandValidator()
+    {
+        RuleFor(x => x.File).NotNull().WithMessage("File is required");
+        RuleFor(x => x.File.Length).LessThanOrEqualTo(10 * 1024 * 1024).WithMessage("Max size is 10MB");
+        RuleFor(x => x.File.FileName).Must(x => x.EndsWith(".xlsx") || x.EndsWith(".csv"))
+            .WithMessage("Only Excel or CSV files are allowed");
+    }
+}
+
+public class GetUploadStatusQueryValidator : AbstractValidator<GetUploadStatusQuery>
+{
+    public GetUploadStatusQueryValidator()
+    {
+        RuleFor(x => x.BatchId).NotEmpty();
+    }
+}
+
+//handlers
+public class UploadFileCommandHandler(IData_InegstionService Data_InegstionService)
+    : IRequestHandler<UploadFileCommand, Guid>,
+    IRequestHandler<ProcessFileCommand>,
+    IRequestHandler<GetUploadStatusQuery, UploadStatusDto>
+{
+    public async Task<Guid> Handle(UploadFileCommand request, CancellationToken ct)
+    {
+        return await Data_InegstionService.SaveFileAsync(request.File, ct);
+    }
+
+    public async Task Handle(ProcessFileCommand request, CancellationToken ct)
+    {
+        await Data_InegstionService.ProcessBatchAsync(request.BatchId, request.FilePath, ct);
+    }
+
+    public async Task<UploadStatusDto?> Handle(GetUploadStatusQuery request, CancellationToken ct)
+    {
+        return await Data_InegstionService.GetBatchStatusAsync(request.BatchId);
+    }
+}
+
