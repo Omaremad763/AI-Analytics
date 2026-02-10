@@ -1,22 +1,18 @@
 ﻿using Application;
 using Application.Contracts;
+using Application.Contracts.Ai_Insights;
 
 using FluentValidation;
 
 using Hangfire;
 using Hangfire.PostgreSql;
-
 using Infrastructure.Contracts_Implementation;
 using Infrastructure.Persistence;
-
 using MediatR;
-
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-
 namespace Infrastructure.Extentions;
-
 public static class DependenciesCollector
 {
     public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
@@ -41,11 +37,9 @@ public static class DependenciesCollector
     }));
         services.AddHangfireServer();
         #endregion
-
-        services.AddScoped<IExcelParserService, ExcelParserService>();
-
-        services.AddScoped<IDataBatchRepository, DataBatchRepository>();
-
+        services.AddScoped<IAI_AnalyticsServices, AI_AnalyticsServices>();
+        services.AddHttpClient<IAI_InsightService, Ai_InsightService>();
+        services.AddScoped<IUnitofWork, UnitofWork>();
         #region Mediator
         services.AddMediatR(cfg =>
         {
