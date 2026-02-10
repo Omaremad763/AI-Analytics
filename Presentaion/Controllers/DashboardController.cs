@@ -1,4 +1,4 @@
-﻿using Application.Features.Analytics;
+﻿using Application.CQRS;
 
 using MediatR;
 

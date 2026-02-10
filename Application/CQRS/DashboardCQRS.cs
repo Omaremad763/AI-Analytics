@@ -1,8 +1,10 @@
 ﻿using Application.Contracts.Dashboard;
 using Application.DTOS;
+
 using FluentValidation;
+
 using MediatR;
-namespace Application.Features.Analytics;
+namespace Application.CQRS;
 public record GetDashboardDataQuery(DateTime StartDate, DateTime EndDate):IRequest<AnalyticsDashboardDto>;
 public record GetBatchDetailsQuery(Guid BatchId): IRequest<IEnumerable<FinancialRecordDto>>;
 public class GetDashboardDataValidator : AbstractValidator<GetDashboardDataQuery>
