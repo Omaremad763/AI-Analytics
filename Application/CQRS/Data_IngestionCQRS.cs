@@ -23,7 +23,6 @@ namespace Application.CQRS;
 
 //commands and queries
 public record UploadFileCommand(IFormFile File) : IRequest<Guid>;
-public record ProcessFileCommand(Guid BatchId, string FilePath) : IRequest;
 public record GetUploadStatusQuery(Guid BatchId) : IRequest<UploadStatusDto?>;
 
 //varlidators
@@ -49,17 +48,11 @@ public class GetUploadStatusQueryValidator : AbstractValidator<GetUploadStatusQu
 //handlers
 public class UploadFileCommandHandler(IData_InegstionService Data_InegstionService)
     : IRequestHandler<UploadFileCommand, Guid>,
-    IRequestHandler<ProcessFileCommand>,
     IRequestHandler<GetUploadStatusQuery, UploadStatusDto>
 {
     public async Task<Guid> Handle(UploadFileCommand request, CancellationToken ct)
     {
         return await Data_InegstionService.SaveFileAsync(request.File, ct);
-    }
-
-    public async Task Handle(ProcessFileCommand request, CancellationToken ct)
-    {
-        await Data_InegstionService.ProcessBatchAsync(request.BatchId, request.FilePath, ct);
     }
 
     public async Task<UploadStatusDto?> Handle(GetUploadStatusQuery request, CancellationToken ct)
