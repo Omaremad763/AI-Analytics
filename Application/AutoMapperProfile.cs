@@ -11,6 +11,7 @@ public class AutoMapperProfile : Profile
     public AutoMapperProfile()
     {
         CreateMap<DataBatch, UploadStatusDto>();
+        CreateMap<FinancialRecord, FinancialRecordDto>();
 
     }
 }
