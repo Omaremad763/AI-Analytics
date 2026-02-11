@@ -1,6 +1,7 @@
 ﻿using Application;
 using Application.Contracts;
 using Application.Contracts.Ai_Insights;
+using Application.Contracts.Data_Ingestion;
 
 using FluentValidation;
 
@@ -39,7 +40,8 @@ public static class DependenciesCollector
         #endregion
         services.AddScoped<IAI_AnalyticsServices, AI_AnalyticsServices>();
         services.AddHttpClient<IAI_InsightService, Ai_InsightService>();
-        services.AddScoped<IUnitofWork, UnitofWork>();
+       services.AddScoped<IUnitofWork, UnitofWork>();
+        services.AddScoped<IData_InegstionService, Data_InegstionService>();
         #region Mediator
         services.AddMediatR(cfg =>
         {

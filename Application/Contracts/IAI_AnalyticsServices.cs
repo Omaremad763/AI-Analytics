@@ -12,6 +12,5 @@ namespace Application.Contracts;
 public interface IAI_AnalyticsServices
 {
     public IDashboardService DashboardService { get; }
-    public IData_InegstionService Data_InegstionService { get; }
     public IExcelParserService ExcelParserService { get; }
 }

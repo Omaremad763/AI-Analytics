@@ -1,0 +1,64 @@
+<div class="page-container flex items-center justify-center">
+  <div class="fin-card w-full max-w-xl">
+    <header class="mb-8">
+      <h1 class="heading-xl mb-2">Finanical Data</h1>
+      <h2 class="text-black-700">Upload Excel File.</h2>
+    </header>
+    <div class="space-y-6">
+      <div class="relative">
+        <input
+          type="file"
+          (change)="onFileSelected($event)"
+          [disabled]="uploadStatus() === 'uploading' || uploadStatus() === 'processing'"
+          class="fin-input cursor-pointer file:hidden"
+          id="fileInput"
+        />
+        <label for="fileInput" class="absolute left-4 top-3 text-slate-400">
+          <i class="fas fa-file-excel text-lg"></i>
+        </label>
+      </div>
+
+      @if (uploadStatus() !== 'idle') {
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-100 transition-all">
+          @if (uploadStatus() === 'uploading' || uploadStatus() === 'processing') {
+            <div class="flex items-center justify-between">
+              <span class="flex items-center gap-2 text-sm font-medium text-slate-700">
+                <i class="fas fa-spinner animate-spin text-blue-600"></i>
+                {{ uploadStatus() === 'uploading' ? 'Uploading...' : 'Processing data...' }}
+              </span>
+              <span class="status-processing">Processing</span>
+            </div>
+          }
+
+          @if (uploadStatus() === 'completed') {
+            <div class="flex items-center justify-between">
+              <span class="flex items-center gap-2 text-sm font-medium text-emerald-700">
+                <i class="fas fa-check-circle"></i>
+                File Processed Successfully
+              </span>
+              <span class="status-completed">Completed</span>
+            </div>
+          }
+
+          @if (uploadStatus() === 'failed') {
+            <div class="text-sm font-medium text-rose-600 flex items-center gap-2">
+              <i class="fas fa-exclamation-triangle"></i>
+              {{ errorMessage() }}
+            </div>
+          }
+        </div>
+      }
+
+      <button
+        (click)="fileInput.click()"
+        [disabled]="uploadStatus() === 'uploading' || uploadStatus() === 'processing'"
+        class="btn-primary w-full"
+      >
+        <i class="fas fa-cloud-upload-alt"></i>
+        Choose New File
+      </button>
+
+      <input #fileInput type="file" (change)="onFileSelected($event)" class="hidden" />
+    </div>
+  </div>
+</div>
