@@ -14,10 +14,8 @@ namespace Application.Contracts.Dashboard
     {
         Task<AnalyticsDashboardDto> GetDashboardDataAsync(DateTime start, DateTime end);
 
-        // للمرحلة الأولى (Ingestion) - حفظ البيانات الضخمة
-        Task SaveProcessedRecordsAsync(IEnumerable<FinancialRecord> records);
+        Task SaveProcessedRecordsAsync(List<FinancialRecord> records);
 
-        // لجلب السجلات بالتفصيل لو احتجنا نعرض Table
         Task<IEnumerable<FinancialRecordDto>> GetBatchDetailsAsync(Guid batchId);
     }
 }

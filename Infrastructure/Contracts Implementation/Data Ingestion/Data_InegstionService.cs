@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Application.Contracts;
+using Application.Contracts.Dashboard;
 using Application.Contracts.Data_Ingestion;
 using Application.CQRS;
 using Application.DTOS;
@@ -22,40 +23,42 @@ using Microsoft.AspNetCore.Http;
 
 namespace Infrastructure.Contracts_Implementation;
 
-    public class Data_InegstionService(
-        IDataBatchRepository repository,
+    public class Data_InegstionService( IUnitofWork unitofWork,
         IBackgroundJobClient backgroundJobClient,
-        IExcelParserService service,
-        IMapper mapper
-        ) : IData_InegstionService
+        IAI_AnalyticsServices service,
+        IMapper mapper) : IData_InegstionService
     {
-
         public async Task<UploadStatusDto?> GetBatchStatusAsync(Guid batchId)
         {
-            var batch = await repository.GetByIdAsync(batchId);
+            var batch = await unitofWork.DataBatchRepository.GetByIdAsync(batchId);
             if (batch == null) return null;
             var mapped = mapper.Map<UploadStatusDto>(batch);
             return mapped;
         }
-
-        public async Task ProcessBatchAsync(Guid batchId, string filePath, CancellationToken ct)
+    [AutomaticRetry(Attempts = 0, OnAttemptsExceeded = AttemptsExceededAction.Fail)]
+    public async Task ProcessBatchAsync(Guid batchId, string filePath, CancellationToken ct)
         {
-            await repository.UpdateStatusAsync(batchId, BatchStatus.Processing);
+            await unitofWork.DataBatchRepository.UpdateStatusAsync(batchId, BatchStatus.Processing);
             using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
             {
-                var records = service.ParseFinancialFile(stream);
-
-                // هنا المفروض سطر حفظ الـ records في الداتابيز (المرحلة الثانية)
-                // await repository.SaveRecordsAsync(batchId, records);
+                List<FinancialRecordDto>? records =  service.ExcelParserService.ParseFinancialFile(stream);
+                List<FinancialRecord>? mapping = mapper.Map<List<FinancialRecord>>(records);
+                 mapping.ForEach(x => x.DataBatchId = batchId);
+                await service.DashboardService.SaveProcessedRecordsAsync(mapping);
             }
-            await repository.UpdateStatusAsync(batchId, BatchStatus.Completed);
+            await unitofWork.DataBatchRepository.UpdateStatusAsync(batchId, BatchStatus.Completed);
             if (File.Exists(filePath)) File.Delete(filePath);
+            await unitofWork.CommitAsync();
         }
-
-        public async Task<Guid> SaveFileAsync(IFormFile file, CancellationToken ct)
+    public async Task<Guid> SaveFileAsync(IFormFile file, CancellationToken ct)
         {
             var filePath = Path.Combine("Uploads", $"{Guid.NewGuid()}_{file.FileName}");
-            using (var stream = new FileStream(filePath, FileMode.Create))
+            var directoryPath = Path.GetDirectoryName(filePath);
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath!);
+            }
+        using (var stream = new FileStream(filePath, FileMode.Create))
             {
                 await file.CopyToAsync(stream, ct);
             }
@@ -63,12 +66,15 @@ namespace Infrastructure.Contracts_Implementation;
             var batch = new DataBatch
             {
                 FileName = file.FileName,
-                Status = BatchStatus.Pending
+                Status = BatchStatus.Pending,
+                FilePath=filePath
+
             };
-              await repository.AddAsync(batch);
-            backgroundJobClient.Enqueue<IData_InegstionService>(service =>
-                service.ProcessBatchAsync(batch.Id, filePath,ct));
-            return batch.Id;
+              await unitofWork.DataBatchRepository.AddAsync(batch);
+              await unitofWork.CommitAsync();
+        backgroundJobClient.Enqueue<Data_InegstionService>( x => x.ProcessBatchAsync(batch.Id, filePath, CancellationToken.None)
+        );
+        return batch.Id;
         }
-    }
+}
 

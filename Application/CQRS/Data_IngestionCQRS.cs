@@ -46,18 +46,18 @@ public class GetUploadStatusQueryValidator : AbstractValidator<GetUploadStatusQu
 }
 
 //handlers
-public class UploadFileCommandHandler(IData_InegstionService Data_InegstionService)
+public class UploadFileCommandHandler(IData_InegstionService service)
     : IRequestHandler<UploadFileCommand, Guid>,
     IRequestHandler<GetUploadStatusQuery, UploadStatusDto>
 {
     public async Task<Guid> Handle(UploadFileCommand request, CancellationToken ct)
     {
-        return await Data_InegstionService.SaveFileAsync(request.File, ct);
+        return await service.SaveFileAsync(request.File, ct);
     }
 
     public async Task<UploadStatusDto?> Handle(GetUploadStatusQuery request, CancellationToken ct)
     {
-        return await Data_InegstionService.GetBatchStatusAsync(request.BatchId);
+        return await service.GetBatchStatusAsync(request.BatchId);
     }
 }
 
