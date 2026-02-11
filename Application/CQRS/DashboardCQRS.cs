@@ -1,4 +1,5 @@
-﻿using Application.Contracts.Dashboard;
+﻿using Application.Contracts;
+using Application.Contracts.Dashboard;
 using Application.DTOS;
 
 using FluentValidation;
@@ -26,17 +27,17 @@ public class GetBatchDetailsValidator : AbstractValidator<GetBatchDetailsQuery>
     }
 }
 
-public class AnalyticsHandler(IDashboardService DashboardService) :
+public class DashboardHandler(IAI_AnalyticsServices service) :
     IRequestHandler<GetDashboardDataQuery, AnalyticsDashboardDto>,
     IRequestHandler<GetBatchDetailsQuery, IEnumerable<FinancialRecordDto>>
 {
     public async Task<AnalyticsDashboardDto> Handle(GetDashboardDataQuery request, CancellationToken ct)
     {
-        return await DashboardService.GetDashboardDataAsync(request.StartDate, request.EndDate);
+        return await service.DashboardService.GetDashboardDataAsync(request.StartDate, request.EndDate);
     }
 
     public async Task<IEnumerable<FinancialRecordDto>> Handle(GetBatchDetailsQuery request, CancellationToken ct)
     {
-        return await DashboardService.GetBatchDetailsAsync(request.BatchId);
+        return await service.DashboardService.GetBatchDetailsAsync(request.BatchId);
     }
 }
