@@ -11,14 +11,16 @@ namespace Presentation.Controllers;
         public async Task<IActionResult> UploadFile([FromForm] IFormFile file)
         {
             var result = await mediator.Send(new UploadFileCommand(file));
-            return Accepted(new { batchId = result });
-        }
+            var response = ApiResponse.Success(result);
+             return Ok(response);
+    }
 
         [HttpGet("status/{id:guid}")]
         public async Task<IActionResult> GetStatus(Guid id)
         {
             var status = await mediator.Send(new GetUploadStatusQuery(id));
-            return Ok(status);
-        }
+            var response = ApiResponse.Success(status);
+            return Ok(response);
+    }
     }
 

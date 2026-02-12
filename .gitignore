@@ -376,5 +376,8 @@ FodyWeavers.xsd
 *.pdf
 *.json
 *.md
-/.~lock.Test Project .xlsx#
 /Test Project .xlsx
+/تجربة ملف Excel لبيانات مالية.xlsx
+*.xlsx#
+/تجربة ملف Excel لبيانات مالية.xlsx
+/تجربة ملف Excel لبيانات مالية.xlsx

@@ -1,0 +1,105 @@
+<div class="page-container flex items-center justify-center p-6">
+  <div class="fin-card w-full max-w-2xl p-10 shadow-xl border border-slate-100 transition-all">
+    <header class="mb-10 text-center">
+      <h1 class="heading-xl mb-3 text-slate-900">Financial Data</h1>
+      <p class="text-slate-500 font-medium">
+        Upload your Excel file to start the analysis pipeline.
+      </p>
+    </header>
+
+    <div class="space-y-8">
+      <div class="relative group">
+        <div class="relative w-full">
+          <div
+            class="fin-input flex items-center justify-between px-6 py-4 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 group-hover:border-blue-400 transition-colors pointer-events-none"
+          >
+            <span class="text-slate-600 font-medium truncate">
+              {{ selectedFileName || 'Choose your financial excel file...' }}
+            </span>
+            <span class="material-icons text-slate-400 group-hover:text-blue-500">upload_file</span>
+          </div>
+
+          <input
+            type="file"
+            (change)="onFileSelected($event)"
+            [disabled]="uploadStatus() === 'uploading' || uploadStatus() === 'processing'"
+            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            id="fileInput"
+          />
+        </div>
+
+        @if (uploadStatus() !== 'idle') {
+          <div
+            class="mt-6 p-6 rounded-2xl bg-white border border-slate-100 shadow-sm animate-in fade-in slide-in-from-top-4 duration-300"
+          >
+            @if (uploadStatus() === 'uploading' || uploadStatus() === 'processing') {
+              <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                  <span class="flex items-center gap-3 text-sm font-bold text-slate-800">
+                    <i class="fas fa-cog animate-spin text-blue-600"></i>
+                    {{
+                      uploadStatus() === 'uploading'
+                        ? 'Uploading to Server...'
+                        : 'AI Engine Analysis...'
+                    }}
+                  </span>
+                  <span
+                    class="text-xs font-black text-blue-600 uppercase tracking-widest animate-pulse"
+                    >In Progress</span
+                  >
+                </div>
+
+                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div
+                    class="h-full bg-blue-600 rounded-full transition-all duration-700 ease-out shadow-[0_0_10px_rgba(37,99,235,0.5)]"
+                    [style.width]="uploadStatus() === 'uploading' ? '40%' : '80%'"
+                  ></div>
+                </div>
+                <p class="text-[11px] text-slate-400 italic text-center">
+                  Please don't close the tab, we are securing your data.
+                </p>
+              </div>
+            }
+
+            @if (uploadStatus() === 'completed') {
+              <div
+                class="flex items-center justify-between p-2 bg-emerald-50 rounded-xl border border-emerald-100"
+              >
+                <span class="flex items-center gap-3 text-sm font-bold text-emerald-700">
+                  <i class="fas fa-check-double"></i>
+                  File Processed & Insights Ready
+                </span>
+                <span
+                  class="px-3 py-1 bg-emerald-500 text-white text-[10px] font-bold rounded-lg uppercase"
+                  >Success</span
+                >
+              </div>
+            }
+
+            @if (uploadStatus() === 'failed') {
+              <div
+                class="p-4 bg-rose-50 border border-rose-100 rounded-xl text-sm font-bold text-rose-600 flex items-center gap-3"
+              >
+                <i class="fas fa-circle-xmark"></i>
+                {{ errorMessage() }}
+              </div>
+            }
+          </div>
+        }
+
+        <div class="mt-8">
+          <button
+            (click)="fileInput.click()"
+            [disabled]="uploadStatus() === 'uploading' || uploadStatus() === 'processing'"
+            class="btn-primary w-full py-4 rounded-xl flex items-center justify-center gap-3 shadow-lg hover:shadow-blue-200 transition-all disabled:opacity-50 disabled:grayscale"
+          >
+            <i class="fas fa-file-import"></i>
+            {{ selectedFileName ? 'Change Selection' : 'Select Financial File' }}
+          </button>
+        </div>
+
+        <input #fileInput type="file" (change)="onFileSelected($event)" class="hidden" />
+      </div>
+    </div>
+  </div>
+</div>

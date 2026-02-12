@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Application.Contracts;
+using Application.Contracts.Dashboard;
 using Application.Contracts.Data_Ingestion;
 using Application.CQRS;
 using Application.DTOS;
@@ -22,7 +23,10 @@ using Microsoft.AspNetCore.Http;
 
 namespace Infrastructure.Contracts_Implementation;
 
-    public class Data_InegstionService( IUnitofWork unitofWork,IBackgroundJobClient backgroundJobClient,IAI_AnalyticsServices service,IMapper mapper) : IData_InegstionService
+    public class Data_InegstionService( IUnitofWork unitofWork,
+        IBackgroundJobClient backgroundJobClient,
+        IAI_AnalyticsServices service,
+        IMapper mapper) : IData_InegstionService
     {
         public async Task<UploadStatusDto?> GetBatchStatusAsync(Guid batchId)
         {
@@ -31,14 +35,16 @@ namespace Infrastructure.Contracts_Implementation;
             var mapped = mapper.Map<UploadStatusDto>(batch);
             return mapped;
         }
+        [AutomaticRetry(Attempts = 0, OnAttemptsExceeded = AttemptsExceededAction.Fail)]
         public async Task ProcessBatchAsync(Guid batchId, string filePath, CancellationToken ct)
         {
             await unitofWork.DataBatchRepository.UpdateStatusAsync(batchId, BatchStatus.Processing);
             using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
             {
-                var records = service.ExcelParserService.ParseFinancialFile(stream);
-                var mapping = mapper.Map<List<FinancialRecord>>(records);
-                await service.DashboardService.SaveProcessedRecordsAsync(mapping);
+                List<FinancialRecordDto>? records =  service.ExcelParserService.ParseFinancialFile(stream);
+                List<FinancialRecord>? mapping = mapper.Map<List<FinancialRecord>>(records);
+                 mapping.ForEach(x => x.DataBatchId = batchId);
+                await service.DashboardService.BulkInsertRecordsAsync(mapping);
             }
             await unitofWork.DataBatchRepository.UpdateStatusAsync(batchId, BatchStatus.Completed);
             if (File.Exists(filePath)) File.Delete(filePath);
@@ -47,7 +53,12 @@ namespace Infrastructure.Contracts_Implementation;
     public async Task<Guid> SaveFileAsync(IFormFile file, CancellationToken ct)
         {
             var filePath = Path.Combine("Uploads", $"{Guid.NewGuid()}_{file.FileName}");
-            using (var stream = new FileStream(filePath, FileMode.Create))
+            var directoryPath = Path.GetDirectoryName(filePath);
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath!);
+            }
+        using (var stream = new FileStream(filePath, FileMode.Create))
             {
                 await file.CopyToAsync(stream, ct);
             }
@@ -55,12 +66,14 @@ namespace Infrastructure.Contracts_Implementation;
             var batch = new DataBatch
             {
                 FileName = file.FileName,
-                Status = BatchStatus.Pending
+                Status = BatchStatus.Pending,
+                FilePath=filePath
+
             };
               await unitofWork.DataBatchRepository.AddAsync(batch);
               await unitofWork.CommitAsync();
-        backgroundJobClient.Enqueue<IData_InegstionService>(service =>service.ProcessBatchAsync(batch.Id, filePath,ct));
-            return batch.Id;
+        backgroundJobClient.Enqueue<Data_InegstionService>( x => x.ProcessBatchAsync(batch.Id, filePath, CancellationToken.None) );
+        return batch.Id;
         }
-    }
+}
 

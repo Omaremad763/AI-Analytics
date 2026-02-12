@@ -1,3 +1,63 @@
-/* You can add global styles to this file, and also import other style files */
+/* 1. استيراد Tailwind باستخدام الأسلوب الأحدث والأكثر استقراراً */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* --- Layout Union --- */
+.page-container {
+  /* تم إصلاح md:p-8 هنا عبر التأكد من وجود الـ import الصحيح */
+  @apply min-h-screen bg-[#F8FAFC] p-4 text-slate-900;
+}
 
-@import "tailwindcss";
+/* كلاس منفصل للـ Padding لضمان عدم حدوث تضارب أثناء الـ Build */
+@media (min-width: 768px) {
+  .page-container {
+    @apply p-8;
+  }
+}
+
+/* --- Cards Union --- */
+.fin-card {
+  @apply bg-white border border-slate-200 rounded-2xl p-6 shadow-sm 
+           transition-all duration-300 hover:shadow-md;
+}
+
+/* --- Typography Union --- */
+.heading-xl {
+  @apply text-3xl font-extrabold tracking-tight text-slate-800;
+}
+
+.heading-md {
+  @apply text-lg font-semibold text-slate-700;
+}
+
+/* --- Forms & Buttons Union --- */
+.fin-input {
+  @apply w-full rounded-xl border-slate-200 bg-slate-50 px-4 py-3 
+           text-sm transition-all focus:border-blue-500 focus:ring-4 
+           focus:ring-blue-500/10 outline-none;
+}
+
+.btn-primary {
+  @apply px-6 py-3 rounded-xl font-semibold transition-all duration-200 
+           active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2
+           bg-slate-900 text-white hover:bg-slate-800 shadow-lg shadow-slate-200;
+}
+
+/* --- Status Badges Union --- */
+.status-badge {
+  @apply px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider;
+}
+
+.status-processing {
+  @apply status-badge bg-amber-100 text-amber-700 animate-pulse;
+}
+
+.status-completed {
+  @apply status-badge bg-emerald-100 text-emerald-700;
+}
+
+/* --- AI Special Touch --- */
+.ai-gradient-text {
+  @apply bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 
+           bg-clip-text text-transparent font-bold;
+}
