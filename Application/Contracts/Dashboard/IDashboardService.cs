@@ -12,10 +12,9 @@ namespace Application.Contracts.Dashboard
 {
     public interface IDashboardService
     {
-        Task<AnalyticsDashboardDto> GetDashboardDataAsync(DateTime start, DateTime end);
-
-        Task SaveProcessedRecordsAsync(List<FinancialRecord> records);
-
-        Task<IEnumerable<FinancialRecordDto>> GetBatchDetailsAsync(Guid batchId);
+        Task BulkInsertRecordsAsync(IEnumerable<FinancialRecord> records);
+        Task<List<MetricCardDto>> GetMetricCardsAsync();
+        Task<ChartDataDto> GetDailyTrendChartAsync(DateTime start, DateTime end);
+        Task<IEnumerable<CategoryDistributionDto>> GetCategoryDataAsync();
     }
 }

@@ -12,6 +12,7 @@ public record FinancialRecordDto
     public DateTime TransactionDate { get; init; } = DateTime.UtcNow;
     public string Description { get; init; } = string.Empty;
     public string Vendor { get; init; } = string.Empty;
+    public string Type { get; init; }
 }
 
 public record class UploadStatusDto

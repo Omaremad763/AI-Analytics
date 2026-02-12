@@ -14,10 +14,11 @@ namespace Application.Contracts.Dashboard
     {
         Task BulkInsertRecordsAsync(IEnumerable<FinancialRecord> records);
 
-        Task<Dictionary<string, decimal>> GetFinancialSummaryAsync(DateTime startDate, DateTime endDate);
+        Task<AnalyticsDashboardDto> GetFinancialCardMetricsAsync();
 
-        Task<IEnumerable<DailyTransactionSummaryDto>> GetDailySummariesAsync(DateTime startDate, DateTime endDate);
+        Task<IEnumerable<DailyTransactionSummaryDto>> GetDailyChartsAsync(DateTime startDate, DateTime endDate);
 
+        Task<IEnumerable<CategoryDistributionDto>> GetCategoryDistributionAsync();
         Task<IEnumerable<FinancialRecord>> GetRecordsByBatchIdAsync(Guid batchId);
     }
 }

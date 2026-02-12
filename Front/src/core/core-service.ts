@@ -24,23 +24,18 @@ export class AnalyticsService {
     );
   }
   // dashboard
-  getDashboardData(start: Date, end: Date): Observable<ApiResponse<models.AnalyticsDashboardDto>> {
-    const params = new HttpParams().set('start', start.toISOString()).set('end', end.toISOString());
-    return this.http.get<ApiResponse<models.AnalyticsDashboardDto>>(
-      `${this.baseUrl}/Dashboard/dashboard`,
-      { params },
-    );
+  getmetrics(): Observable<ApiResponse<models.MetricCardDto[]>> {
+    return this.http.get<ApiResponse<models.MetricCardDto[]>>(`${this.baseUrl}/Dashboard/metrics`);
   }
-  getBatchDetails(id: string): Observable<ApiResponse<models.FinancialRecordDto[]>> {
-    return this.http.get<ApiResponse<models.FinancialRecordDto[]>>(
-      `${this.baseUrl}/Dashboard/batch/${id}`,
-    );
+  getcharts(start: Date, end: Date): Observable<ApiResponse<any>> {
+    const s = start.toISOString().split('T')[0];
+    const e = end.toISOString().split('T')[0];
+    const params = new HttpParams().set('start', s).set('end', e);
+    return this.http.get<ApiResponse<any>>(`${this.baseUrl}/Dashboard/charts`, { params });
   }
   // AI insights
-  getAIInsights(startDate: Date, endDate: Date): Observable<ApiResponse<models.AIInsightDto>> {
-    const params = new HttpParams()
-      .set('startDate', startDate.toISOString())
-      .set('endDate', endDate.toISOString());
+  getAIInsights(start: Date, end: Date): Observable<ApiResponse<models.AIInsightDto>> {
+    const params = new HttpParams().set('start', start.toISOString()).set('end', end.toISOString());
     return this.http.get<ApiResponse<models.AIInsightDto>>(`${this.baseUrl}/AIInsights/analyze`, {
       params,
     });

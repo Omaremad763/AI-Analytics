@@ -13,44 +13,50 @@ namespace Infrastructure.Contracts_Implementation;
     {
     private readonly HttpClient _httpClient;
     private readonly IAI_AnalyticsServices _service;
-    private readonly string _apiKey;
-    private const string GeminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
-
-    public Ai_InsightService(HttpClient httpClient, IConfiguration configuration,IAI_AnalyticsServices service)
+    public Ai_InsightService(HttpClient httpClient,IAI_AnalyticsServices service)
     {
         _service = service;
         _httpClient = httpClient;
-        _apiKey = configuration["Gemini:ApiKey"]!;
     }
     public async Task<string> GetFinancialInsightsAsync(string financialSummaryJson)
     {
+        var groqUrl = "https://api.groq.com/openai/v1/chat/completions";
+
         var prompt = $"Analyze this financial data (JSON) and give me 3 bullet points of insights and 2 tips to save money: {financialSummaryJson}";
 
         var requestBody = new
         {
-            contents = new[]
+            model = "llama-3.3-70b-versatile",
+            messages = new[]
             {
-                new { parts = new[] { new { text = prompt } } }
-            }
+            new { role = "user", content = prompt }
+        },
+            temperature = 0.5
         };
+
         var jsonPayload = JsonSerializer.Serialize(requestBody);
         var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
-        var response = await _httpClient.PostAsync($"{GeminiUrl}?key={_apiKey}", content);
-        if (!response.IsSuccessStatusCode) return "Unable to reach AI advisor at the moment.";
-        var responseData = await response.Content.ReadFromJsonAsync<JsonElement>();
 
-            return responseData.GetProperty("candidates")[0]
-                               .GetProperty("content")
-                               .GetProperty("parts")[0]
-                               .GetProperty("text").GetString() ?? "No insights generated.";
+        var _apiKey = Environment.GetEnvironmentVariable("GrokKey");
+        _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _apiKey);
+         var response = await _httpClient.PostAsync(groqUrl, content);
+        var errorDetails = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode) return $"AI Advisor is resting (Error: {response.StatusCode})";
+
+            var responseData = await response.Content.ReadFromJsonAsync<JsonElement>();
+            return responseData
+                .GetProperty("choices")[0]
+                .GetProperty("message")
+                .GetProperty("content")
+                .GetString() ?? "No insights generated.";
     }
     public async Task<AIInsightDto> GetAIInsightReportAsync(DateTime start, DateTime end)
     {
-        var dashboardData = await _service.DashboardService.GetDashboardDataAsync(start, end);
+        var dashboardData = await _service.DashboardService.GetDailyTrendChartAsync(start, end);
         var jsonData = JsonSerializer.Serialize(dashboardData);
 
         var analysis = await GetFinancialInsightsAsync(jsonData);
-        return new AIInsightDto(analysis, DateTime.UtcNow, start, end);
+        return new AIInsightDto(analysis, DateTime.UtcNow);
     }
 
 }

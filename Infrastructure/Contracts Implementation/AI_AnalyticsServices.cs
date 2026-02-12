@@ -19,7 +19,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace Infrastructure.Contracts_Implementation;
 
-    public class AI_AnalyticsServices(IMapper mapper, IConfiguration configuration
+    public class AI_AnalyticsServices(IMapper mapper
         , IUnitofWork unitofWork
         ) : IAI_AnalyticsServices
     {
