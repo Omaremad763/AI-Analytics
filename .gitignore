@@ -376,3 +376,5 @@ FodyWeavers.xsd
 *.pdf
 *.json
 *.md
+/.~lock.Test Project .xlsx#
+/Test Project .xlsx
