@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { interval, Subscription, switchMap, takeWhile } from 'rxjs';
 import Swal from 'sweetalert2';
 import { AnalyticsService } from '../../core/core-service';
-
 @Component({
   selector: 'app-file-upload',
   standalone: true,
@@ -15,10 +15,13 @@ export class UploadFileComponent {
   uploadStatus = signal<'idle' | 'uploading' | 'processing' | 'completed' | 'failed'>('idle');
   batchId = signal<string | null>(null);
   errorMessage = signal<string | null>(null);
+  selectedFileName: string = '';
   private pollingSub?: Subscription;
+  router = inject(Router);
   onFileSelected(event: any): void {
     const file: File = event.target.files[0];
     if (file) {
+      this.selectedFileName = file.name;
       this.startUpload(file);
     }
   }
@@ -32,20 +35,18 @@ export class UploadFileComponent {
       },
       error: (err) => {
         this.uploadStatus.set('failed');
-        // تنبيه المستخدم بفشل الرفع
         Swal.fire({
           icon: 'error',
-          title: 'فشل الرفع',
-          text: 'حدث خطأ تقني أثناء إرسال الملف للسيرفر، يرجى المحاولة لاحقاً.',
-          confirmButtonColor: '#1E40AF', // لون الـ Primary اللي اخترناه
-          confirmButtonText: 'حسناً',
+          title: 'failed to upload',
+          text: 'try again later',
+          confirmButtonColor: '#1E40AF',
+          confirmButtonText: 'okً',
         });
       },
     });
   }
   private startPolling(id: string): void {
     this.uploadStatus.set('processing');
-
     this.pollingSub = interval(2000)
       .pipe(
         switchMap(() => this.AnalyticsService.getUploadStatus(id)),
@@ -58,10 +59,14 @@ export class UploadFileComponent {
             this.stopPolling();
             Swal.fire({
               icon: 'success',
-              title: 'تمت المعالجة',
-              text: 'تم تحليل البيانات المالية ورفعها بنجاح!',
+              title: 'success',
+              text: 'data processed successfully',
               timer: 3000,
-              showConfirmButton: false,
+              showConfirmButton: true,
+              confirmButtonText: 'go to dashboard',
+              confirmButtonColor: '#1E40AF',
+            }).then((result) => {
+              this.router.navigate(['/dashboard']);
             });
           } else if (res.data.status === 'Failed') {
             this.handleProcessingError();
@@ -81,8 +86,8 @@ export class UploadFileComponent {
     this.stopPolling();
     Swal.fire({
       icon: 'error',
-      title: 'خطأ في معالجة البيانات',
-      text: 'تم رفع الملف ولكن فشلنا في قراءة محتواه، تأكد من مطابقة الملف للمعايير المطلوبة.',
+      title: 'error in processing data',
+      text: 'try again later',
       confirmButtonColor: '#1E40AF',
     });
   }
