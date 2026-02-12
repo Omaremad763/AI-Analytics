@@ -1,8 +1,6 @@
 export interface AIInsightDto {
   analysisText: string;
   generatedAt: string;
-  periodStart: string;
-  periodEnd: string;
 }
 export interface DailyTransactionSummaryDto {
   date: string;
@@ -25,7 +23,13 @@ export interface UploadStatusDto {
   id: string;
   fileName: string;
   status: string;
-  errorMessage?: string; // ? معناها optional
+  errorMessage?: string;
   uploadDate: Date;
-  processedAt?: Date; // optional
+  processedAt?: Date;
+}
+export interface MetricCardDto {
+  label: string;
+  value: number;
+  icon: string;
+  color: string;
 }

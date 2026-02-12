@@ -16,29 +16,43 @@ namespace Infrastructure.Contracts_Implementation.Dashboard
 {
     public class DashboardService( IUnitofWork unitOfWork,IMapper mapper) : IDashboardService
     {
-        public async Task<AnalyticsDashboardDto> GetDashboardDataAsync(DateTime start, DateTime end)
+        public async Task<List<MetricCardDto>> GetMetricCardsAsync()
         {
-            var summary = await unitOfWork.DashboardRepository.GetFinancialSummaryAsync(start, end);
-            var dailyData = await unitOfWork.DashboardRepository.GetDailySummariesAsync(start, end);
-            var totalIncome = summary["Income"];
-            var totalExpense = summary["Expense"];
-            var netProfit = totalIncome - totalExpense;
-            return new AnalyticsDashboardDto(
-             totalIncome,
-             totalExpense,
-             netProfit,
-             dailyData
-         );
 
-        }
-        public async Task SaveProcessedRecordsAsync(List<FinancialRecord> records)
+            var summary = await unitOfWork.DashboardRepository.GetFinancialCardMetricsAsync();
+            return new List<MetricCardDto>
         {
-            await unitOfWork.DashboardRepository.BulkInsertRecordsAsync(records);
+            new("Total Income", summary.TotalIncome, "trending_up", "#4CAF50"),
+            new("Total Expenses", summary.TotalExpense, "trending_down", "#F44336"),
+            new("Net Profit", summary.NetProfit, "account_balance_wallet", "#2196F3")
+        };
         }
-        public async Task<IEnumerable<FinancialRecordDto>> GetBatchDetailsAsync(Guid batchId)
+        public async Task<ChartDataDto> GetDailyTrendChartAsync(DateTime start, DateTime end)
         {
-            var records = await unitOfWork.DashboardRepository.GetRecordsByBatchIdAsync(batchId);
-            return mapper.Map<IEnumerable<FinancialRecordDto>>(records);
+            var dailyData = await unitOfWork.DashboardRepository.GetDailyChartsAsync(start, end);
+            return new ChartDataDto
+            {
+                Labels = dailyData.Select(d => d.TransactionDate.ToString("MMM dd")).ToList(),
+                Datasets = new List<ChartDatasetDto>
+            {
+                new ChartDatasetDto
+                {
+                    Label = "Daily Transactions",
+                    Data = dailyData.Select(d => d.TotalAmount).ToList(),
+                    BackgroundColor = "rgba(33, 150, 243, 0.2)",
+                    BorderColor = "#2196F3"
+                }
+            }
+            };
+        }
+        public async Task<IEnumerable<CategoryDistributionDto>> GetCategoryDataAsync()
+        {
+            return await unitOfWork.DashboardRepository.GetCategoryDistributionAsync();
+        }
+        public async Task BulkInsertRecordsAsync(IEnumerable<FinancialRecord> records)
+        {
+             await unitOfWork.DashboardRepository.BulkInsertRecordsAsync(records);
         }
     }
 }
+

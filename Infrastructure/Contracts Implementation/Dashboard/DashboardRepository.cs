@@ -12,18 +12,19 @@ using Infrastructure.Persistence;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Identity.Client;
+
+using Npgsql;
 
 namespace Infrastructure.Contracts_Implementation.Dashboard;
 
     public class DashboardRepository(ApplicationDbContext context, IConfiguration configuration) : IDashboardRepository
     {
-
-    readonly string connectionString = configuration.GetConnectionString("DefaultConnection");
+        readonly string connectionString = configuration.GetConnectionString("DefaultConnection");
         public async Task BulkInsertRecordsAsync(IEnumerable<FinancialRecord> records)
         {
             await context.FinancialRecords.AddRangeAsync(records);
         }
-
         public async Task<IEnumerable<FinancialRecord>> GetRecordsByBatchIdAsync(Guid batchId)
         {
             return await context.FinancialRecords
@@ -31,38 +32,47 @@ namespace Infrastructure.Contracts_Implementation.Dashboard;
                 .Where(r => r.Id == batchId)
                 .ToListAsync();
         }
+        public async Task<AnalyticsDashboardDto> GetFinancialCardMetricsAsync()
+    {
 
-        public async Task<Dictionary<string, decimal>> GetFinancialSummaryAsync(DateTime startDate, DateTime endDate)
+        var stats = await context.FinancialRecords
+            .AsNoTracking()
+            .GroupBy(r => r.Type)
+            .Select(g => new {
+                Type = g.Key,
+                Total = g.Sum(r => r.Amount)
+            })
+            .ToListAsync();
+
+        var income = stats.FirstOrDefault(x => x.Type == FinacialReacordsEnum.Income)?.Total ?? 0;
+        var expense = stats.FirstOrDefault(x => x.Type == FinacialReacordsEnum.Expense)?.Total ?? 0;
+        var net = income - Math.Abs(expense);
+        return new AnalyticsDashboardDto(income, expense, net, new List<DailyTransactionSummaryDto>());
+    }
+        public async Task<IEnumerable<DailyTransactionSummaryDto>> GetDailyChartsAsync(DateTime startDate, DateTime endDate)
         {
-            var data = await context.FinancialRecords
-                .AsNoTracking()
-                .Where(r => r.TransactionDate >= startDate && r.TransactionDate <= endDate)
-                .GroupBy(r => 1)
-                .Select(g => new
+            using NpgsqlConnection db = new NpgsqlConnection(connectionString);
+            var Postgres = @"SELECT ""TransactionDate"" AS ""Date"", ""TotalAmount"", ""TransactionCount""
+                 FROM public.""View_FinancialDailySummaries""";
+             return await db.QueryAsync<DailyTransactionSummaryDto>(Postgres, new { Start = startDate, End = endDate });
+        }
+        public async Task<IEnumerable<CategoryDistributionDto>> GetCategoryDistributionAsync()
+        {
+            var totalAll = await context.FinancialRecords.SumAsync(x => x.Amount);
+            return await context.FinancialRecords
+                .GroupBy(x => x.Category)
+                .Select(group => new CategoryDistributionDto
                 {
-                    TotalIncome = g.Where(x => x.Amount > 0).Sum(x => x.Amount),
-                    TotalExpense = g.Where(x => x.Amount < 0).Sum(x => x.Amount)
+                    CategoryName = group.Key,
+                    TotalAmount = group.Sum(x => x.Amount),
+                    Percentage = totalAll > 0
+                                 ? (double)(group.Sum(x => x.Amount) / totalAll * 100)
+                                 : 0
                 })
-                .FirstOrDefaultAsync();
-
-            return new Dictionary<string, decimal>
-        {
-            { "Income", data?.TotalIncome ?? 0 },
-            { "Expense", Math.Abs(data?.TotalExpense ?? 0) }
-        };
+                .OrderByDescending(x => x.TotalAmount)
+                .ToListAsync();
         }
-        public async Task<IEnumerable<DailyTransactionSummaryDto>> GetDailySummariesAsync(DateTime startDate, DateTime endDate)
-        {
-            using IDbConnection db = new SqlConnection(connectionString);
 
-            // SQL مباشر وبسيط، Dapper بيحوله لـ Objects بسرعة خارقة
-            var sql = @"SELECT TransactionDate AS Date, TotalAmount, TransactionCount 
-                        FROM View_FinancialDailySummaries 
-                        WHERE TransactionDate BETWEEN @Start AND @End 
-                        ORDER BY TransactionDate";
-
-            return await db.QueryAsync<DailyTransactionSummaryDto>(sql, new { Start = startDate, End = endDate });
-        }
 }
 
 

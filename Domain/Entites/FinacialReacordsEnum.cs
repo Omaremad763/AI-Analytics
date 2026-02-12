@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.DTOS;
-
-public record AIInsightDto(
-    string AnalysisText,
-    DateTime GeneratedAt
-);
-
+namespace Domain.Entites
+{
+    public enum FinacialReacordsEnum
+    {
+        Income ,
+        Expense
+    }
+}
