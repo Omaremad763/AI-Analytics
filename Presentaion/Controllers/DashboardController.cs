@@ -10,15 +10,27 @@ namespace Presentation.Controllers;
     [Route("api/[controller]")]
     public class DashboardController(IMediator mediator) : ControllerBase
     {
-        [HttpGet("dashboard")]
-        public async Task<IActionResult> GetDashboard([FromQuery] DateTime start, [FromQuery] DateTime end)
+        [HttpGet("metrics")]
+        public async Task<IActionResult> GetMetrics()
         {
-            return Ok(await mediator.Send(new GetDashboardDataQuery(start, end)));
-        }
-        [HttpGet("batch/{id:guid}")]
-        public async Task<IActionResult> GetBatchDetails(Guid id)
+            var result=(await mediator.Send(new GetFinancialMetricsQuery()));
+            var response = ApiResponse.Success(result);
+            return Ok(response);
+         }
+        [HttpGet("charts")]
+        public async Task<IActionResult> GetChartss([FromQuery] DateTime start, [FromQuery] DateTime end)
         {
-            return Ok(await mediator.Send(new GetBatchDetailsQuery(id)));
-        }
+        Task<Application.DTOS.ChartDataDto>? trendTask = mediator.Send(new GetTrendDataQuery(start, end));
+        var categoryTask = mediator.Send(new GetCategoryDistributionQuery());
+        await Task.WhenAll(trendTask, categoryTask);
+        var chartSummary = new
+        {
+            TrendData = trendTask.Result,
+            CategoryDistribution = categoryTask.Result
+        };
+
+        var response = ApiResponse.Success(chartSummary);
+        return Ok(response);
     }
+}
 
