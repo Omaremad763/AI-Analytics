@@ -20,5 +20,6 @@ namespace Domain.Entites
         public decimal Amount { get; set; }
         public string Category { get; set; }
         public string Vendor { get; set; }
+        public FinacialReacordsEnum Type { get; set; }
     }
 }
