@@ -32,10 +32,9 @@ namespace Infrastructure.Persistence;
         {
             builder.HasKey(r => r.Id);
             builder.Property(r => r.Description).IsRequired().HasMaxLength(500);
-            builder.Property(r => r.Amount).HasPrecision(18, 2); // دقة مالية عالية
+            builder.Property(r => r.Amount).HasPrecision(18, 2);
             builder.Property(r => r.Category).HasMaxLength(100);
-
-            // Indexing لسرعة الـ Queries في الـ Dashboard
+            builder.Property(p => p.Type).HasConversion(v => v.ToString(), v => (FinacialReacordsEnum)Enum.Parse(typeof(FinacialReacordsEnum), v));
             builder.HasIndex(r => r.Category);
             builder.HasIndex(r => r.TransactionDate);
         }

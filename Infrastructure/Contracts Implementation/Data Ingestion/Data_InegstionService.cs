@@ -35,8 +35,8 @@ namespace Infrastructure.Contracts_Implementation;
             var mapped = mapper.Map<UploadStatusDto>(batch);
             return mapped;
         }
-    [AutomaticRetry(Attempts = 0, OnAttemptsExceeded = AttemptsExceededAction.Fail)]
-    public async Task ProcessBatchAsync(Guid batchId, string filePath, CancellationToken ct)
+        [AutomaticRetry(Attempts = 0, OnAttemptsExceeded = AttemptsExceededAction.Fail)]
+        public async Task ProcessBatchAsync(Guid batchId, string filePath, CancellationToken ct)
         {
             await unitofWork.DataBatchRepository.UpdateStatusAsync(batchId, BatchStatus.Processing);
             using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
@@ -44,7 +44,7 @@ namespace Infrastructure.Contracts_Implementation;
                 List<FinancialRecordDto>? records =  service.ExcelParserService.ParseFinancialFile(stream);
                 List<FinancialRecord>? mapping = mapper.Map<List<FinancialRecord>>(records);
                  mapping.ForEach(x => x.DataBatchId = batchId);
-                await service.DashboardService.SaveProcessedRecordsAsync(mapping);
+                await service.DashboardService.BulkInsertRecordsAsync(mapping);
             }
             await unitofWork.DataBatchRepository.UpdateStatusAsync(batchId, BatchStatus.Completed);
             if (File.Exists(filePath)) File.Delete(filePath);
@@ -72,8 +72,7 @@ namespace Infrastructure.Contracts_Implementation;
             };
               await unitofWork.DataBatchRepository.AddAsync(batch);
               await unitofWork.CommitAsync();
-        backgroundJobClient.Enqueue<Data_InegstionService>( x => x.ProcessBatchAsync(batch.Id, filePath, CancellationToken.None)
-        );
+        backgroundJobClient.Enqueue<Data_InegstionService>( x => x.ProcessBatchAsync(batch.Id, filePath, CancellationToken.None) );
         return batch.Id;
         }
 }
