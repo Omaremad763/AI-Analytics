@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Application.Contracts.Data_Ingestion
 {
-    public interface IData_InegstionService
+    public interface IDataInegstionService
     {
         Task<Guid> SaveFileAsync(IFormFile file, CancellationToken ct);
 

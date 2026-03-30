@@ -47,11 +47,11 @@ namespace Infrastructure.Contracts_Implementation.Dashboard;
         var income = stats.FirstOrDefault(x => x.Type == FinacialReacordsEnum.Income)?.Total ?? 0;
         var expense = stats.FirstOrDefault(x => x.Type == FinacialReacordsEnum.Expense)?.Total ?? 0;
         var net = income - Math.Abs(expense);
-        return new AnalyticsDashboardDto(income, expense, net, new List<DailyTransactionSummaryDto>());
+        return new AnalyticsDashboardDto(income, expense, net, []);
     }
         public async Task<IEnumerable<DailyTransactionSummaryDto>> GetDailyChartsAsync(DateTime startDate, DateTime endDate)
         {
-            using NpgsqlConnection db = new NpgsqlConnection(connectionString);
+            using NpgsqlConnection db = new(connectionString);
             var Postgres = @"SELECT ""TransactionDate"" AS ""Date"", ""TotalAmount"", ""TransactionCount""
                  FROM public.""View_FinancialDailySummaries""";
              return await db.QueryAsync<DailyTransactionSummaryDto>(Postgres, new { Start = startDate, End = endDate });

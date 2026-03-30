@@ -19,11 +19,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace Infrastructure.Contracts_Implementation;
 
-    public class AI_AnalyticsServices(IMapper mapper
-        , IUnitofWork unitofWork
-        ) : IAI_AnalyticsServices
+    public class AIAnalyticsServices( 
+        IUnitofWork unitofWork
+        ) : IAIAnalyticsServices
     {
-        public IDashboardService DashboardService =>  new DashboardService(unitofWork,mapper);
+        public IDashboardService DashboardService =>  new DashboardService(unitofWork);
         public IExcelParserService ExcelParserService =>  new ExcelParserService();
     }
 

@@ -18,9 +18,9 @@ public class GetFinancialInsightsValidator : AbstractValidator<GetFinancialInsig
             .WithMessage("تاريخ النهاية يجب أن يكون بعد تاريخ البداية للحصول على تحليل دقيق.");
     }
 }
-public class AIInsightsHandler( IAI_InsightService aiService) :IRequestHandler<GetFinancialInsightsQuery, AIInsightDto>
+public class AIInsightsHandler( IAIInsightService aiService) :IRequestHandler<GetFinancialInsightsQuery, AIInsightDto>
 {
-    public async Task<AIInsightDto> Handle(GetFinancialInsightsQuery request, CancellationToken ct)
+    public async Task<AIInsightDto> Handle(GetFinancialInsightsQuery request, CancellationToken cancellationToken)
     {
 
         return await aiService.GetAIInsightReportAsync(request.start, request.end);

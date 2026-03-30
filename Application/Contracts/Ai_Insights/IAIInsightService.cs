@@ -8,7 +8,7 @@ using Application.DTOS;
 
 namespace Application.Contracts.Ai_Insights
 {
-    public interface IAI_InsightService
+    public interface IAIInsightService
     {
         Task<AIInsightDto> GetAIInsightReportAsync(DateTime start, DateTime end);
     }

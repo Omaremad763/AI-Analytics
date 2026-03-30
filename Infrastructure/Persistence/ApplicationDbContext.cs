@@ -7,14 +7,11 @@ using Microsoft.EntityFrameworkCore.Design;
 
 namespace Infrastructure.Persistence
 {
-    public class ApplicationDbContext: DbContext
+    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
     {
         public DbSet<DataBatch> DataBatchs => Set<DataBatch>();
         public DbSet<FinancialRecord> FinancialRecords => Set<FinancialRecord>();
         public DbSet<BatchSummary> BatchSummary => Set<BatchSummary>();
-
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -30,9 +27,9 @@ namespace Infrastructure.Persistence
     {
         public ApplicationDbContext CreateDbContext(string[] args)
         {
-
+            var coonection = Environment.GetEnvironmentVariable("AiAnalyticsConnection");
             var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-            optionsBuilder.UseNpgsql("Host=localhost; Port=5432; Database=AI-Analytics; Username=postgres; Password=123456Oo#;");
+            optionsBuilder.UseNpgsql(coonection);
             return new ApplicationDbContext(optionsBuilder.Options);
         }
     }

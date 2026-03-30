@@ -38,10 +38,10 @@ public static class DependenciesCollector
     }));
         services.AddHangfireServer();
         #endregion
-        services.AddScoped<IAI_AnalyticsServices, AI_AnalyticsServices>();
-        services.AddHttpClient<IAI_InsightService, Ai_InsightService>();
+        services.AddScoped<IAIAnalyticsServices, AIAnalyticsServices>();
+        services.AddHttpClient<IAIInsightService, AiInsightService>();
        services.AddScoped<IUnitofWork, UnitofWork>();
-        services.AddScoped<IData_InegstionService, Data_InegstionService>();
+        services.AddScoped<IDataInegstionService, DataInegstionService>();
         #region Mediator
         services.AddMediatR(cfg =>
         {

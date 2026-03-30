@@ -9,7 +9,7 @@ using Application.Contracts.Dashboard;
 using Application.Contracts.Data_Ingestion;
 
 namespace Application.Contracts;
-public interface IAI_AnalyticsServices
+public interface IAIAnalyticsServices
 {
     public IDashboardService DashboardService { get; }
     public IExcelParserService ExcelParserService { get; }

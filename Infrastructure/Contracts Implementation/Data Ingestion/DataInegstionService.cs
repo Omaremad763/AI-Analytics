@@ -23,10 +23,10 @@ using Microsoft.AspNetCore.Http;
 
 namespace Infrastructure.Contracts_Implementation;
 
-    public class Data_InegstionService( IUnitofWork unitofWork,
+    public class DataInegstionService( IUnitofWork unitofWork,
         IBackgroundJobClient backgroundJobClient,
-        IAI_AnalyticsServices service,
-        IMapper mapper) : IData_InegstionService
+        IAIAnalyticsServices service,
+        IMapper mapper) : IDataInegstionService
     {
         public async Task<UploadStatusDto?> GetBatchStatusAsync(Guid batchId)
         {
@@ -72,7 +72,7 @@ namespace Infrastructure.Contracts_Implementation;
             };
               await unitofWork.DataBatchRepository.AddAsync(batch);
               await unitofWork.CommitAsync();
-        backgroundJobClient.Enqueue<Data_InegstionService>( x => x.ProcessBatchAsync(batch.Id, filePath, CancellationToken.None) );
+        backgroundJobClient.Enqueue<DataInegstionService>( x => x.ProcessBatchAsync(batch.Id, filePath, CancellationToken.None) );
         return batch.Id;
         }
 }
