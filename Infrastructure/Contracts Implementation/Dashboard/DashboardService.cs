@@ -1,24 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Application.Contracts;
+﻿using Application.Contracts;
 using Application.Contracts.Dashboard;
 using Application.DTOS;
-
-using AutoMapper;
 
 using Domain.Entites;
 
 namespace Infrastructure.Contracts_Implementation.Dashboard
 {
-    public class DashboardService( IUnitofWork unitOfWork) : IDashboardService
+    public class DashboardService(IUnitofWork unitOfWork) : IDashboardService
     {
         public async Task<List<MetricCardDto>> GetMetricCardsAsync()
         {
-
             var summary = await unitOfWork.DashboardRepository.GetFinancialCardMetricsAsync();
             return
         [
@@ -27,6 +18,7 @@ namespace Infrastructure.Contracts_Implementation.Dashboard
             new("Net Profit", summary.NetProfit, "account_balance_wallet", "#2196F3")
         ];
         }
+
         public async Task<ChartDataDto> GetDailyTrendChartAsync(DateTime start, DateTime end)
         {
             var dailyData = await unitOfWork.DashboardRepository.GetDailyChartsAsync(start, end);
@@ -45,14 +37,15 @@ namespace Infrastructure.Contracts_Implementation.Dashboard
             ]
             };
         }
+
         public async Task<IEnumerable<CategoryDistributionDto>> GetCategoryDataAsync()
         {
             return await unitOfWork.DashboardRepository.GetCategoryDistributionAsync();
         }
+
         public async Task BulkInsertRecordsAsync(IEnumerable<FinancialRecord> records)
         {
-             await unitOfWork.DashboardRepository.BulkInsertRecordsAsync(records);
+            await unitOfWork.DashboardRepository.BulkInsertRecordsAsync(records);
         }
     }
 }
-

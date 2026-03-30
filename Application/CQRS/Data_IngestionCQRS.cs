@@ -1,19 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Application.Contracts;
-using Application.Contracts.Data_Ingestion;
+﻿using Application.Contracts.Data_Ingestion;
 using Application.DTOS;
 
-using Domain.Entites;
-
 using FluentValidation;
-
-using Hangfire;
-using Hangfire.Dashboard;
 
 using MediatR;
 
@@ -60,4 +48,3 @@ public class UploadFileCommandHandler(IDataInegstionService service)
         return await service.GetBatchStatusAsync(request.BatchId);
     }
 }
-

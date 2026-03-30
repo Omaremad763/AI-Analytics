@@ -1,11 +1,11 @@
-﻿
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using Application;
 
 using Hangfire;
 
 using Infrastructure.Extentions;
+
 WebApplicationBuilder? builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers().AddJsonOptions(options =>
     {
@@ -14,7 +14,8 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     });
 builder.Services.AddOpenApi();
 builder.Services.AddServices(builder.Configuration);
-builder.Services.AddAutoMapper(cfg => {
+builder.Services.AddAutoMapper(cfg =>
+{
     cfg.AddProfile<AutoMapperProfile>();
 }, typeof(AutoMapperProfile).Assembly);
 builder.Services.AddCors(options =>

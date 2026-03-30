@@ -6,11 +6,10 @@ using Application.Contracts;
 using Application.Contracts.Ai_Insights;
 using Application.DTOS;
 
-using Microsoft.Extensions.Configuration;
-
 namespace Infrastructure.Contracts_Implementation;
-    public class AiInsightService(HttpClient httpClient, IAIAnalyticsServices service) : IAIInsightService
-    {
+
+public class AiInsightService(HttpClient httpClient, IAIAnalyticsServices service) : IAIInsightService
+{
     private readonly HttpClient _httpClient = httpClient;
     private readonly IAIAnalyticsServices _service = service;
 
@@ -35,17 +34,18 @@ namespace Infrastructure.Contracts_Implementation;
 
         var _apiKey = Environment.GetEnvironmentVariable("GrokKey");
         _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _apiKey);
-         var response = await _httpClient.PostAsync(groqUrl, content);
-         await response.Content.ReadAsStringAsync();
+        var response = await _httpClient.PostAsync(groqUrl, content);
+        await response.Content.ReadAsStringAsync();
         if (!response.IsSuccessStatusCode) return $"AI Advisor is resting (Error: {response.StatusCode})";
 
-            var responseData = await response.Content.ReadFromJsonAsync<JsonElement>();
-            return responseData
-                .GetProperty("choices")[0]
-                .GetProperty("message")
-                .GetProperty("content")
-                .GetString() ?? "No insights generated.";
+        var responseData = await response.Content.ReadFromJsonAsync<JsonElement>();
+        return responseData
+            .GetProperty("choices")[0]
+            .GetProperty("message")
+            .GetProperty("content")
+            .GetString() ?? "No insights generated.";
     }
+
     public async Task<AIInsightDto> GetAIInsightReportAsync(DateTime start, DateTime end)
     {
         var dashboardData = await _service.DashboardService.GetDailyTrendChartAsync(start, end);
@@ -54,6 +54,4 @@ namespace Infrastructure.Contracts_Implementation;
         var analysis = await GetFinancialInsightsAsync(jsonData);
         return new AIInsightDto(analysis, DateTime.UtcNow);
     }
-
 }
-

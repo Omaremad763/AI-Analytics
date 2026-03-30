@@ -7,13 +7,16 @@ using FluentValidation;
 
 using Hangfire;
 using Hangfire.PostgreSql;
+
 using Infrastructure.Contracts_Implementation;
 using Infrastructure.Persistence;
-using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+
 namespace Infrastructure.Extentions;
+
 public static class DependenciesCollector
 {
     public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
@@ -37,19 +40,24 @@ public static class DependenciesCollector
         options.UseNpgsqlConnection(connectionString);
     }));
         services.AddHangfireServer();
-        #endregion
+
+        #endregion Hangifre
+
         services.AddScoped<IAIAnalyticsServices, AIAnalyticsServices>();
         services.AddHttpClient<IAIInsightService, AiInsightService>();
-       services.AddScoped<IUnitofWork, UnitofWork>();
+        services.AddScoped<IUnitofWork, UnitofWork>();
         services.AddScoped<IDataInegstionService, DataInegstionService>();
+
         #region Mediator
+
         services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssembly(assembly);
             cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
         });
         services.AddValidatorsFromAssembly(assembly);
-        #endregion
+
+        #endregion Mediator
 
         return services;
     }

@@ -12,7 +12,5 @@ public class AutoMapperProfile : Profile
     {
         CreateMap<DataBatch, UploadStatusDto>();
         CreateMap<FinancialRecord, FinancialRecordDto>().ReverseMap();
-
     }
 }
-

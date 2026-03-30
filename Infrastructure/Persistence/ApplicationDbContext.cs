@@ -1,6 +1,4 @@
-﻿using System.Linq.Expressions;
-
-using Domain.Entites;
+﻿using Domain.Entites;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
@@ -18,7 +16,6 @@ namespace Infrastructure.Persistence
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
-
         }
     }
 
@@ -33,5 +30,4 @@ namespace Infrastructure.Persistence
             return new ApplicationDbContext(optionsBuilder.Options);
         }
     }
-
 }

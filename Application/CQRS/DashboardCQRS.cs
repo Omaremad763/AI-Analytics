@@ -7,7 +7,6 @@ using MediatR;
 
 namespace Application.CQRS;
 
-
 public record GetFinancialMetricsQuery() : IRequest<IEnumerable<MetricCardDto>>;
 
 public record GetCategoryDistributionQuery() : IRequest<IEnumerable<CategoryDistributionDto>>;
@@ -22,7 +21,6 @@ public class GetTrendDataValidator : AbstractValidator<GetTrendDataQuery>
         RuleFor(x => x.EndDate).NotEmpty();
     }
 }
-
 
 public class DashboardHandler(IAIAnalyticsServices service) :
     IRequestHandler<GetFinancialMetricsQuery, IEnumerable<MetricCardDto>>,
