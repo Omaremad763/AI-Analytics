@@ -40,7 +40,7 @@ public class GetUploadStatusQueryValidator : AbstractValidator<GetUploadStatusQu
     }
 }
 
-public class UploadFileCommandHandler(IData_InegstionService service)
+public class UploadFileCommandHandler(IDataInegstionService service)
     : IRequestHandler<UploadFileCommand, Guid>,
     IRequestHandler<GetUploadStatusQuery, UploadStatusDto>
 {

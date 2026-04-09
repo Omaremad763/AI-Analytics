@@ -18,14 +18,14 @@ using Xunit;
 public class Data_IngestionCQRSTest
 {
     private readonly UploadFileCommandValidator _validator;
-    private readonly Mock<IData_InegstionService> _serviceMock;
+    private readonly Mock<IDataInegstionService> _serviceMock;
     private readonly UploadFileCommandHandler _handler;
 
     public Data_IngestionCQRSTest()
     {
         _validator = new UploadFileCommandValidator();
-        _serviceMock = new Mock<IData_InegstionService>();
-        _handler = new UploadFileCommandHandler(_serviceMock.Object);
+        _serviceMock = new Mock<IDataInegstionService>();
+        _handler = new Application.CQRS.UploadFileCommandHandler(_serviceMock.Object);
     }
 
     #region Validator Tests
