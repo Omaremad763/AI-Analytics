@@ -21,19 +21,26 @@ using Microsoft.AspNetCore.Http;
 
 namespace Application.CQRS;
 
-//commands and queries
 public record UploadFileCommand(IFormFile File) : IRequest<Guid>;
 public record GetUploadStatusQuery(Guid BatchId) : IRequest<UploadStatusDto?>;
 
-//varlidators
 public class UploadFileCommandValidator : AbstractValidator<UploadFileCommand>
 {
     public UploadFileCommandValidator()
     {
-        RuleFor(x => x.File).NotNull().WithMessage("File is required");
-        RuleFor(x => x.File.Length).LessThanOrEqualTo(10 * 1024 * 1024).WithMessage("Max size is 10MB");
-        RuleFor(x => x.File.FileName).Must(x => x.EndsWith(".xlsx") || x.EndsWith(".csv"))
-            .WithMessage("Only Excel or CSV files are allowed");
+        RuleFor(x => x.File)
+            .Cascade(CascadeMode.Stop)
+            .NotNull().WithMessage("File is required");
+
+        RuleFor(x => x.File.Length)
+            .LessThanOrEqualTo(10 * 1024 * 1024)
+            .WithMessage("Max size is 10MB")
+            .When(x => x.File != null);   
+
+        RuleFor(x => x.File.FileName)
+            .Must(fileName => fileName.EndsWith(".xlsx") || fileName.EndsWith(".csv"))
+            .WithMessage("Only Excel or CSV files are allowed")
+            .When(x => x.File != null);
     }
 }
 
@@ -45,7 +52,6 @@ public class GetUploadStatusQueryValidator : AbstractValidator<GetUploadStatusQu
     }
 }
 
-//handlers
 public class UploadFileCommandHandler(IData_InegstionService service)
     : IRequestHandler<UploadFileCommand, Guid>,
     IRequestHandler<GetUploadStatusQuery, UploadStatusDto>
