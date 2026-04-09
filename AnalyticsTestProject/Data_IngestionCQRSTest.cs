@@ -44,7 +44,7 @@ public class Data_IngestionCQRSTest
     public void Should_Have_Error_When_File_Is_Too_Large()
     {
         var fileMock = new Mock<IFormFile>();
-        fileMock.Setup(f => f.Length).Returns(11 * 1024 * 1024);  
+        fileMock.Setup(f => f.Length).Returns(10 * 1024 * 1024);  
         fileMock.Setup(f => f.FileName).Returns("test.csv");
 
         var command = new UploadFileCommand(fileMock.Object);
