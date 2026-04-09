@@ -7,7 +7,6 @@ using MediatR;
 
 namespace Application.CQRS;
 
-
 public record GetFinancialMetricsQuery() : IRequest<IEnumerable<MetricCardDto>>;
 
 public record GetCategoryDistributionQuery() : IRequest<IEnumerable<CategoryDistributionDto>>;
@@ -23,23 +22,22 @@ public class GetTrendDataValidator : AbstractValidator<GetTrendDataQuery>
     }
 }
 
-
-public class DashboardHandler(IAI_AnalyticsServices service) :
+public class DashboardHandler(IAIAnalyticsServices service) :
     IRequestHandler<GetFinancialMetricsQuery, IEnumerable<MetricCardDto>>,
     IRequestHandler<GetCategoryDistributionQuery, IEnumerable<CategoryDistributionDto>>,
     IRequestHandler<GetTrendDataQuery, ChartDataDto>
 {
-    public async Task<IEnumerable<MetricCardDto>> Handle(GetFinancialMetricsQuery request, CancellationToken ct)
+    public async Task<IEnumerable<MetricCardDto>> Handle(GetFinancialMetricsQuery request, CancellationToken cancellationToken)
     {
         return await service.DashboardService.GetMetricCardsAsync();
     }
 
-    public async Task<IEnumerable<CategoryDistributionDto>> Handle(GetCategoryDistributionQuery request, CancellationToken ct)
+    public async Task<IEnumerable<CategoryDistributionDto>> Handle(GetCategoryDistributionQuery request, CancellationToken cancellationToken)
     {
         return await service.DashboardService.GetCategoryDataAsync();
     }
 
-    public async Task<ChartDataDto> Handle(GetTrendDataQuery request, CancellationToken ct)
+    public async Task<ChartDataDto> Handle(GetTrendDataQuery request, CancellationToken cancellationToken)
     {
         return await service.DashboardService.GetDailyTrendChartAsync(request.StartDate, request.EndDate);
     }

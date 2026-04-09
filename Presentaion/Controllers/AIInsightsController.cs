@@ -3,6 +3,7 @@
 using MediatR;
 
 using Microsoft.AspNetCore.Mvc;
+
 namespace Presentation.Controllers
 {
     [ApiController]
@@ -13,7 +14,7 @@ namespace Presentation.Controllers
         public async Task<IActionResult> GetInsights([FromQuery] DateTime start, [FromQuery] DateTime end)
         {
             var result = await mediator.Send(new GetFinancialInsightsQuery(start, end));
-             var response = ApiResponse.Success(result);
+            var response = ApiResponse.Success(result);
             return Ok(response);
         }
     }

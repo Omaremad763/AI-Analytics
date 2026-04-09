@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Domain.Entites
+﻿namespace Domain.Entites
 {
     public class DataBatch
     {
@@ -18,7 +12,5 @@ namespace Domain.Entites
         public DateTime? ProcessedAt { get; set; }
         public ICollection<FinancialRecord> Records { get; set; }
         public BatchSummary? Summary { get; set; }
-
-
     }
 }

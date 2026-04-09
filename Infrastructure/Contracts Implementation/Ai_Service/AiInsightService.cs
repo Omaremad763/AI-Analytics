@@ -6,18 +6,13 @@ using Application.Contracts;
 using Application.Contracts.Ai_Insights;
 using Application.DTOS;
 
-using Microsoft.Extensions.Configuration;
-
 namespace Infrastructure.Contracts_Implementation;
-    public class Ai_InsightService:IAI_InsightService
-    {
-    private readonly HttpClient _httpClient;
-    private readonly IAI_AnalyticsServices _service;
-    public Ai_InsightService(HttpClient httpClient,IAI_AnalyticsServices service)
-    {
-        _service = service;
-        _httpClient = httpClient;
-    }
+
+public class AiInsightService(HttpClient httpClient, IAIAnalyticsServices service) : IAIInsightService
+{
+    private readonly HttpClient _httpClient = httpClient;
+    private readonly IAIAnalyticsServices _service = service;
+
     public async Task<string> GetFinancialInsightsAsync(string financialSummaryJson)
     {
         var groqUrl = "https://api.groq.com/openai/v1/chat/completions";
@@ -39,17 +34,18 @@ namespace Infrastructure.Contracts_Implementation;
 
         var _apiKey = Environment.GetEnvironmentVariable("GrokKey");
         _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _apiKey);
-         var response = await _httpClient.PostAsync(groqUrl, content);
-        var errorDetails = await response.Content.ReadAsStringAsync();
+        var response = await _httpClient.PostAsync(groqUrl, content);
+        await response.Content.ReadAsStringAsync();
         if (!response.IsSuccessStatusCode) return $"AI Advisor is resting (Error: {response.StatusCode})";
 
-            var responseData = await response.Content.ReadFromJsonAsync<JsonElement>();
-            return responseData
-                .GetProperty("choices")[0]
-                .GetProperty("message")
-                .GetProperty("content")
-                .GetString() ?? "No insights generated.";
+        var responseData = await response.Content.ReadFromJsonAsync<JsonElement>();
+        return responseData
+            .GetProperty("choices")[0]
+            .GetProperty("message")
+            .GetProperty("content")
+            .GetString() ?? "No insights generated.";
     }
+
     public async Task<AIInsightDto> GetAIInsightReportAsync(DateTime start, DateTime end)
     {
         var dashboardData = await _service.DashboardService.GetDailyTrendChartAsync(start, end);
@@ -58,6 +54,4 @@ namespace Infrastructure.Contracts_Implementation;
         var analysis = await GetFinancialInsightsAsync(jsonData);
         return new AIInsightDto(analysis, DateTime.UtcNow);
     }
-
 }
-

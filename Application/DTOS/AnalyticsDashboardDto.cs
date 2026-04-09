@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Application.DTOS;
 
-namespace Application.DTOS;
-
-    public record AnalyticsDashboardDto(
-        decimal TotalIncome,
-        decimal TotalExpense,
-        decimal NetProfit,
-        IEnumerable<DailyTransactionSummaryDto> DailySummaries
-    );
+public record AnalyticsDashboardDto(
+    decimal TotalIncome,
+    decimal TotalExpense,
+    decimal NetProfit,
+    IEnumerable<DailyTransactionSummaryDto> DailySummaries
+);
 
 public record CategoryDistributionDto
 {

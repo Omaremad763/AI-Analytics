@@ -1,19 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Application.Contracts;
-using Application.Contracts.Data_Ingestion;
+﻿using Application.Contracts.Data_Ingestion;
 using Application.DTOS;
 
-using Domain.Entites;
-
 using FluentValidation;
-
-using Hangfire;
-using Hangfire.Dashboard;
 
 using MediatR;
 
@@ -56,14 +44,13 @@ public class UploadFileCommandHandler(IData_InegstionService service)
     : IRequestHandler<UploadFileCommand, Guid>,
     IRequestHandler<GetUploadStatusQuery, UploadStatusDto>
 {
-    public async Task<Guid> Handle(UploadFileCommand request, CancellationToken ct)
+    public async Task<Guid> Handle(UploadFileCommand request, CancellationToken cancellationToken)
     {
-        return await service.SaveFileAsync(request.File, ct);
+        return await service.SaveFileAsync(request.File, cancellationToken);
     }
 
-    public async Task<UploadStatusDto?> Handle(GetUploadStatusQuery request, CancellationToken ct)
+    public async Task<UploadStatusDto?> Handle(GetUploadStatusQuery request, CancellationToken cancellationToken)
     {
         return await service.GetBatchStatusAsync(request.BatchId);
     }
 }
-
