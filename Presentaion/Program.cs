@@ -1,23 +1,50 @@
-var builder = WebApplication.CreateBuilder(args);
+﻿using System.Text.Json;
 
-// Add services to the container.
+using Application;
 
-builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+using Hangfire;
+
+using Infrastructure.Extentions;
+
+WebApplicationBuilder? builder = WebApplication.CreateBuilder(args);
+builder.Services.AddControllers().AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    });
 builder.Services.AddOpenApi();
+builder.Services.AddServices(builder.Configuration);
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.AddProfile<AutoMapperProfile>();
+}, typeof(AutoMapperProfile).Assembly);
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("VercelPolicy", policy =>
+    {
+        policy.SetIsOriginAllowed(origin =>
+        {
+            return string.IsNullOrEmpty(origin) ||
+                   origin.EndsWith(".vercel.app") ||
+                   origin.Contains("localhost");
+        })
+        .AllowAnyHeader()
+        .AllowAnyMethod();
+    });
+});
+WebApplication? app = builder.Build();
 
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-
+app.UseRouting();
+app.UseCors("VercelPolicy");
+app.UseHangfireDashboard("/HangfireAnalytics");
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
+await app.RunAsync();
