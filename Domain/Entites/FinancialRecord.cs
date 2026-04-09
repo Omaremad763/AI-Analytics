@@ -10,6 +10,7 @@ namespace Domain.Entites
     public class FinancialRecord
     {
 
+
         public Guid Id { get; set; }
         public Guid DataBatchId { get; set; }
 
