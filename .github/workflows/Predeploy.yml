@@ -2,7 +2,9 @@ name: AI Analytics CI/CD Pipeline
 
 on:
   push:
-    branches: [ "live" ] # هيشتغل لما تعمل Merge أو Push على branch الـ live
+    branches: [ "PreDeploy" ] 
+  pull_request:
+    branches: ["PreDeploy"]
 
 jobs:
   build-and-push:
