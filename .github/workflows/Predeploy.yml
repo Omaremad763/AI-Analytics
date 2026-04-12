@@ -19,8 +19,8 @@ jobs:
 
       - name: Restore and Build
         run: |
-          dotnet restore "AI Analytics.sln"
-          dotnet build "AI Analytics.sln" --configuration Release
+          dotnet restore "AI_Analytics.sln"
+          dotnet build "AI_Analytics.sln" --configuration Release
 
       # 2. تسجيل الدخول إلى Docker Hub
       - name: Login to Docker Hub
