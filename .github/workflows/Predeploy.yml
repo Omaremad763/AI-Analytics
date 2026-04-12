@@ -2,7 +2,7 @@ name: AI Analytics CI/CD Pipeline
 
 on:
   push:
-    branches: [ "PreDeploy" ] 
+    branches: ["PreDeploy"]
   pull_request:
     branches: ["PreDeploy"]
 
@@ -17,12 +17,12 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0'
+          dotnet-version: "9.0"
 
       - name: Restore and Build
         run: |
-          dotnet restore "AI_Analytics.sln"
-          dotnet build "AI_Analytics.sln" --configuration Release
+          dotnet restore 
+          dotnet build --configuration Release
 
       # 2. تسجيل الدخول إلى Docker Hub
       - name: Login to Docker Hub
@@ -37,7 +37,7 @@ jobs:
         with:
           context: .
           # تأكد من تعديل المسار لو اسم الفولدر عندك صح (Presentation)
-          file: ./Presentation/Dockerfile 
+          file: ./Presentation/Dockerfile
           push: true
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/ai-analytics-backend:latest
