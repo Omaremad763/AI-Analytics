@@ -1,0 +1,54 @@
+name: CI Pre-Deploy Check
+
+on:
+  push:
+    branches: ["PreDeploy"]
+  pull_request:
+    branches: ["PreDeploy"]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0
+
+      - name: Restore and Build API
+        run: |
+          dotnet restore
+          dotnet build --no-restore
+
+      - name: Create Variables Env File
+        run: |
+          touch variables.env
+          echo "ConnectionStrings__DefaultConnection=Host=db;Database=InventoDB;Username=postgres;Password=password" >> variables.env
+          echo "JwtSettings__Key=ThisIsADummyKeyForTestingPurposesOnly123456" >> variables.env
+          echo "Redis__Configuration=redis:6379" >> variables.env
+
+      - name: Build Docker Images
+        run: docker compose build
+
+      - name: Test Docker Up
+        run: |
+
+          docker compose up -d db redis maildev api
+
+          echo "Waiting for containers to stabilize..."
+          sleep 30 
+
+          docker ps
+
+
+          if [ $(docker ps -f status=exited -q | wc -l) -gt 0 ]; then
+            echo "Error: One or more containers crashed!"
+            docker compose logs
+            exit 1
+          fi
+
+      - name: Shut down
+        run: docker compose down
