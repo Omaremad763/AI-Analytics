@@ -8,6 +8,7 @@ using Dapper;
 using Domain.Entites;
 
 using Infrastructure.Persistence;
+using Infrastructure.views;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -16,9 +17,11 @@ using Npgsql;
 
 namespace Infrastructure.Contracts_Implementation.Dashboard;
 
-public class DashboardRepository(ApplicationDbContext context, IConfiguration configuration) : IDashboardRepository
+public class DashboardRepository(ApplicationDbContext context, 
+    IConfiguration configuration) 
+    : IDashboardRepository
 {
-    private readonly string connectionString = configuration.GetConnectionString("DefaultConnection");
+    private readonly string connectionString = configuration["AiAnalyticsConnection"];
 
     public async Task BulkInsertRecordsAsync(IEnumerable<FinancialRecord> records)
     {
@@ -53,26 +56,37 @@ public class DashboardRepository(ApplicationDbContext context, IConfiguration co
 
     public async Task<IEnumerable<DailyTransactionSummaryDto>> GetDailyChartsAsync(DateTime startDate, DateTime endDate)
     {
-        using NpgsqlConnection db = new(connectionString);
-        var Postgres = @"SELECT ""TransactionDate"" AS ""Date"", ""TotalAmount"", ""TransactionCount""
-                 FROM public.""View_FinancialDailySummaries""";
-        return await db.QueryAsync<DailyTransactionSummaryDto>(Postgres, new { Start = startDate, End = endDate });
+        return await context.Set<ViewFinancialSummary>()
+            .AsNoTracking()         
+            .Where(x => x.TransactionDate >= startDate && x.TransactionDate <= endDate)
+            .Select(x => new DailyTransactionSummaryDto
+            {
+                TransactionDate = x.TransactionDate,
+                TotalAmount = x.TotalAmount,
+                TransactionCount = x.TransactionCount
+            })
+            .ToListAsync();
     }
-
     public async Task<IEnumerable<CategoryDistributionDto>> GetCategoryDistributionAsync()
     {
-        var totalAll = await context.FinancialRecords.SumAsync(x => x.Amount);
-        return await context.FinancialRecords
+        var data = await context.FinancialRecords
             .GroupBy(x => x.Category)
-            .Select(group => new CategoryDistributionDto
+            .Select(group => new
             {
-                CategoryName = group.Key,
-                TotalAmount = group.Sum(x => x.Amount),
-                Percentage = totalAll > 0
-                             ? (double)(group.Sum(x => x.Amount) / totalAll * 100)
-                             : 0
+                Category = group.Key,
+                Total = group.Sum(x => x.Amount)
             })
-            .OrderByDescending(x => x.TotalAmount)
             .ToListAsync();
+        var totalAll = data.Sum(x => x.Total);
+        return data
+            .Select(x => new CategoryDistributionDto
+            {
+                CategoryName = x.Category,
+                TotalAmount = x.Total,
+                Percentage = totalAll > 0
+                    ? (double)(x.Total / totalAll * 100)
+                    : 0
+            })
+            .OrderByDescending(x => x.TotalAmount);
     }
 }

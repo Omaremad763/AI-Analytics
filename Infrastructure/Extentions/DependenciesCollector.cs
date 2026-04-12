@@ -14,6 +14,7 @@ using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Extentions;
 
@@ -22,7 +23,7 @@ public static class DependenciesCollector
     public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
     {
         var assembly = typeof(IApplicationHandlerMarker).Assembly;
-        var connectionString = configuration.GetConnectionString("DefaultConnection");
+        var connectionString = configuration["AiAnalyticsConnection"];
         services.AddDbContext<ApplicationDbContext>
          (options =>
          {
@@ -30,16 +31,17 @@ public static class DependenciesCollector
          });
 
         #region Hangifre
-
-        services.AddHangfire(config => config
-    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
-    .UseSimpleAssemblyNameTypeSerializer()
-    .UseRecommendedSerializerSettings()
-    .UsePostgreSqlStorage(options =>
-    {
-        options.UseNpgsqlConnection(connectionString);
-    }));
-        services.AddHangfireServer();
+        
+            services.AddHangfire(config => config
+            .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+            .UseSimpleAssemblyNameTypeSerializer()
+            .UseRecommendedSerializerSettings()
+            .UsePostgreSqlStorage(options =>
+            {
+                options.UseNpgsqlConnection(connectionString);
+            }));
+            services.AddHangfireServer();
+        
 
         #endregion Hangifre
 

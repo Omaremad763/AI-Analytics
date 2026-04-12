@@ -16,7 +16,7 @@ COPY ["Presentaion/Presentation.csproj", "Presentaion/"]
 COPY ["Application/Application.csproj", "Application/"]
 COPY ["Domain/Domain.csproj", "Domain/"]
 COPY ["Infrastructure/Infrastructure.csproj", "Infrastructure/"]
-RUN dotnet restore "./Presentaion/Presentation.csproj"
+RUN dotnet restore "./Presentation/Presentation.csproj"
 COPY . .
 WORKDIR "/src/Presentaion"
 RUN dotnet build "./Presentation.csproj" -c $BUILD_CONFIGURATION -o /app/build

@@ -15,7 +15,7 @@ public class GetFinancialInsightsValidator : AbstractValidator<GetFinancialInsig
         RuleFor(x => x.start).NotEmpty();
         RuleFor(x => x.end).NotEmpty();
         RuleFor(x => x).Must(x => x.end >= x.start)
-            .WithMessage("تاريخ النهاية يجب أن يكون بعد تاريخ البداية للحصول على تحليل دقيق.");
+            .WithMessage("End date must be bigger than start date");
     }
 }
 

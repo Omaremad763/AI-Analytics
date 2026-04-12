@@ -32,6 +32,6 @@ public record DailyTransactionSummaryDto
 {
     public DateTime TransactionDate { get; init; }
     public decimal TotalAmount { get; init; }
-    public int TransactionCount { get; init; }
+    public long TransactionCount { get; init; }
     public DailyTransactionSummaryDto() { }
 }

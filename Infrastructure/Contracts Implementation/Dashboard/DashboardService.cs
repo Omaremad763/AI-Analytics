@@ -21,7 +21,8 @@ namespace Infrastructure.Contracts_Implementation.Dashboard
 
         public async Task<ChartDataDto> GetDailyTrendChartAsync(DateTime start, DateTime end)
         {
-            var dailyData = await unitOfWork.DashboardRepository.GetDailyChartsAsync(start, end);
+            var dailyData = await unitOfWork.DashboardRepository
+                .GetDailyChartsAsync(start, end);
             return new ChartDataDto
             {
                 Labels = [.. dailyData.Select(d => d.TransactionDate.ToString("MMM dd"))],
