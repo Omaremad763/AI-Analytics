@@ -12,19 +12,22 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["Presentaion/Presentaion.csproj", "Presentaion/"]
-RUN dotnet restore "./Presentaion/Presentaion.csproj"
+COPY ["Presentaion/Presentation.csproj", "Presentaion/"]
+COPY ["Application/Application.csproj", "Application/"]
+COPY ["Domain/Domain.csproj", "Domain/"]
+COPY ["Infrastructure/Infrastructure.csproj", "Infrastructure/"]
+RUN dotnet restore "./Presentaion/Presentation.csproj"
 COPY . .
 WORKDIR "/src/Presentaion"
-RUN dotnet build "./Presentaion.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "./Presentation.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./Presentaion.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./Presentation.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Presentaion.dll"]
+ENTRYPOINT ["dotnet", "Presentation.dll"]

@@ -5,6 +5,9 @@ using Application;
 using Hangfire;
 
 using Infrastructure.Extentions;
+using Infrastructure.Persistence;
+
+using Microsoft.EntityFrameworkCore;
 
 WebApplicationBuilder? builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers().AddJsonOptions(options =>
@@ -37,14 +40,27 @@ WebApplication? app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseCors(policyName: "VercelPolicy");
+    app.UseHttpsRedirection();
+
 }
 app.UseRouting();
-app.UseCors("VercelPolicy");
 app.UseHangfireDashboard("/HangfireAnalytics");
-app.UseHttpsRedirection();
 
 app.UseAuthorization();
-
 app.MapControllers();
-
+using (var scope = app.Services.CreateScope())     
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+        await context.Database.MigrateAsync();
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Database Migration Failed!");
+    }
+}
 await app.RunAsync();

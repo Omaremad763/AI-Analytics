@@ -62,9 +62,7 @@ export class UploadFileComponent {
               title: 'success',
               text: 'data processed successfully',
               timer: 3000,
-              showConfirmButton: true,
-              confirmButtonText: 'go to dashboard',
-              confirmButtonColor: '#1E40AF',
+              timerProgressBar: true,
             }).then((result) => {
               this.router.navigate(['/dashboard']);
             });

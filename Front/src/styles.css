@@ -61,3 +61,15 @@
   @apply bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 
            bg-clip-text text-transparent font-bold;
 }
+.swal2-timer-progress-bar {
+  background-color: #1e40af !important;
+  height: 0.35rem !important;
+  border-radius: 4px 4px 0 0;
+}
+
+.swal2-confirm.swal2-styled {
+  background-color: #1e40af !important;
+  border-radius: 8px !important;
+  font-family: 'Your-Typography', sans-serif !important;
+  box-shadow: none !important;
+}

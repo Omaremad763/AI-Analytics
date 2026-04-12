@@ -20,8 +20,9 @@ export class AiInsightsComponent implements OnInit {
     private cdr: ChangeDetectorRef,
   ) {}
   ngOnInit(): void {
-    const start = new Date('2026-01-01');
-    const end = new Date('2026-02-01');
+    const now = new Date();
+    const end = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), 1);
     this.isLoading = true;
     this.aiService.getAIInsights(start, end).subscribe({
       next: (res) => {
@@ -31,9 +32,15 @@ export class AiInsightsComponent implements OnInit {
         }
         const text = res.data.analysisText;
         this.generatedAt = new Date(res.data.generatedAt);
-        const sections = text.split('Tips to save money:');
-        this.insights = sections[0].match(/\* (.*)/g)?.map((s) => s.replace('* ', '')) || [];
-        this.tips = sections[1]?.match(/\* (.*)/g)?.map((s) => s.replace('* ', '')) || [];
+        const sections = text.split('[TIPS]');
+        const insightsPart = sections[0].replace('[INSIGHTS]', '');
+        const bulletPointRegex = /(\*|\d+\.\s)(.*)/g;
+        this.insights =
+          insightsPart.match(bulletPointRegex)?.map((s) => s.replace(/\*|\d+\.\s/, '').trim()) ||
+          [];
+        this.tips =
+          sections[1]?.match(bulletPointRegex)?.map((s) => s.replace(/\*|\d+\.\s/, '').trim()) ||
+          [];
         this.isLoading = false;
         this.cdr.detectChanges();
       },

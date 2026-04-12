@@ -1,0 +1,54 @@
+﻿services:
+  presentation:
+    image: ${DOCKER_REGISTRY-}presentation
+    container_name: Backend_.Net
+    build:
+      context: .
+      dockerfile: Presentaion/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - AiAnalyticsConnection=${ConnectionStrings__AiAnalyticsConnection}
+      - GrokKey=${ConnectionStrings__GrokKey}
+      - ASPNETCORE_URLS=http://+:8080
+
+    networks:
+      - AiAnalytics-network
+
+  db:
+    image: postgres:latest
+    container_name: dbPostgres
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    networks:
+      - AiAnalytics-network
+
+  frontend:
+    build:
+      context: ./Front
+      dockerfile: Dockerfile
+    container_name: frontend_Angular
+    ports:
+      - "4200:80"
+    depends_on:
+      - presentation
+    networks:
+      - AiAnalytics-network
+
+volumes:
+  postgres_data:
+
+networks:
+  AiAnalytics-network:
+    driver: bridge

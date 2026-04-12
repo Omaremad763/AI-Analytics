@@ -28,9 +28,8 @@ export class AnalyticsService {
     return this.http.get<ApiResponse<models.MetricCardDto[]>>(`${this.baseUrl}/Dashboard/metrics`);
   }
   getcharts(start: Date, end: Date): Observable<ApiResponse<any>> {
-    const s = start.toISOString().split('T')[0];
-    const e = end.toISOString().split('T')[0];
-    const params = new HttpParams().set('start', s).set('end', e);
+    const params = new HttpParams().set('start', start.toISOString()).set('end', end.toISOString());
+
     return this.http.get<ApiResponse<any>>(`${this.baseUrl}/Dashboard/charts`, { params });
   }
   // AI insights

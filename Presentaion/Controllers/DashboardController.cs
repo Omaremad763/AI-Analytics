@@ -19,15 +19,14 @@ public class DashboardController(IMediator mediator) : ControllerBase
     }
 
     [HttpGet("charts")]
-    public async Task<IActionResult> GetChartss([FromQuery] DateTime start, [FromQuery] DateTime end)
+    public async Task<IActionResult> GetCharts([FromQuery] DateTime start, [FromQuery] DateTime end)
     {
-        Task<Application.DTOS.ChartDataDto>? trendTask = mediator.Send(new GetTrendDataQuery(start, end));
-        var categoryTask = mediator.Send(new GetCategoryDistributionQuery());
-        await Task.WhenAll(trendTask, categoryTask);
+        var  trendTask = await mediator.Send(new GetTrendDataQuery(start, end));
+        IEnumerable<Application.DTOS.CategoryDistributionDto>? categoryTask = await mediator.Send(new GetCategoryDistributionQuery());
         var chartSummary = new
         {
-            TrendData = trendTask.Result,
-            CategoryDistribution = categoryTask.Result
+            TrendData = trendTask,
+            CategoryDistribution = categoryTask
         };
 
         var response = ApiResponse.Success(chartSummary);
