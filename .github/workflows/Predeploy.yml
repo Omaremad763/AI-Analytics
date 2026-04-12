@@ -1,54 +1,53 @@
-name: CI Pre-Deploy Check
+name: AI Analytics CI/CD Pipeline
 
 on:
   push:
-    branches: ["PreDeploy"]
-  pull_request:
-    branches: ["PreDeploy"]
+    branches: [ "live" ] # هيشتغل لما تعمل Merge أو Push على branch الـ live
 
 jobs:
-  build-and-test:
+  build-and-push:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
+      # 1. إعداد الـ .NET للتأكد من سلامة الكود قبل بناء الدوكر
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0
+          dotnet-version: '9.0'
 
-      - name: Restore and Build API
+      - name: Restore and Build
         run: |
-          dotnet restore
-          dotnet build --no-restore
+          dotnet restore "./AI Analytics.sln"
+          dotnet build "./AI Analytics.sln" --configuration Release
 
-      - name: Create Variables Env File
-        run: |
-          touch variables.env
-          echo "ConnectionStrings__DefaultConnection=Host=db;Database=InventoDB;Username=postgres;Password=password" >> variables.env
-          echo "JwtSettings__Key=ThisIsADummyKeyForTestingPurposesOnly123456" >> variables.env
-          echo "Redis__Configuration=redis:6379" >> variables.env
+      # 2. تسجيل الدخول إلى Docker Hub
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build Docker Images
-        run: docker compose build
+      # 3. بناء ورفع الـ Backend Image
+      - name: Build and Push Backend
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          # تأكد من تعديل المسار لو اسم الفولدر عندك صح (Presentation)
+          file: ./Presentation/Dockerfile 
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/ai-analytics-backend:latest
+            ${{ secrets.DOCKER_USERNAME }}/ai-analytics-backend:${{ github.sha }}
 
-      - name: Test Docker Up
-        run: |
-
-          docker compose up -d db redis maildev api
-
-          echo "Waiting for containers to stabilize..."
-          sleep 30 
-
-          docker ps
-
-
-          if [ $(docker ps -f status=exited -q | wc -l) -gt 0 ]; then
-            echo "Error: One or more containers crashed!"
-            docker compose logs
-            exit 1
-          fi
-
-      - name: Shut down
-        run: docker compose down
+      # 4. بناء ورفع الـ Frontend Image
+      - name: Build and Push Frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./Front
+          file: ./Front/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/ai-analytics-frontend:latest
+            ${{ secrets.DOCKER_USERNAME }}/ai-analytics-frontend:${{ github.sha }}
