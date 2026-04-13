@@ -4,9 +4,13 @@
       {
          "name": "pre-push-tests",
          "command": "dotnet",
-         "args": ["test"],
+         "args": [
+            "test",
+            "AnalyticsTestProject/AnalyticsTestProject.csproj",
+            "-c",
+            "Release"
+         ],
          "group": "pre-push"
       }
    ]
 }
-
