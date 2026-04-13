@@ -48,3 +48,17 @@ jobs:
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/ai-analytics-frontend:latest
             ${{ secrets.DOCKER_USERNAME }}/ai-analytics-frontend:${{ github.sha }}
+      - name: Test Docker Compose Up
+        run: |
+          docker compose up -d db redis api
+          echo "Waiting for services to stabilize..."
+          sleep 30
+          docker ps
+          if [ $(docker ps -f status=exited -q | wc -l) -gt 0 ]; then
+            echo "Error: One or more containers failed!"
+            docker compose logs
+            exit 1
+          fi
+
+      - name: Shutdown Test Environment
+        run: docker compose down
