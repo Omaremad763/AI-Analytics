@@ -7,8 +7,9 @@
          "args": [
             "test",
             "AnalyticsTestProject/AnalyticsTestProject.csproj",
-            "-c",
-            "Release"
+            "--configuration",
+            "Release",
+            "--" 
          ],
          "group": "pre-push"
       }
