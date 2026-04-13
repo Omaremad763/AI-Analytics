@@ -1,14 +1,14 @@
 FROM node:22-alpine AS build
 WORKDIR /app
 
-COPY package*.json ./
+COPY package.json package-lock.json ./
 RUN npm install
 
-# نسخ باقي الكود وعمل الـ build
+
 COPY . .
 RUN npm run build -- --configuration=production
 
-# المرحلة الثانية: التشغيل باستخدام Nginx
+
 FROM nginx:alpine
 
 COPY --from=build /app/dist/AIAnalytics/browser/. /usr/share/nginx/html/

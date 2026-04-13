@@ -4,7 +4,7 @@
     container_name: Backend_.Net
     build:
       context: .
-      dockerfile: Presentaion/Dockerfile
+      dockerfile: Presentation/Dockerfile
     depends_on:
       db:
         condition: service_healthy
