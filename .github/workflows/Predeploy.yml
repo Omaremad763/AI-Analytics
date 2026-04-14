@@ -21,10 +21,10 @@ jobs:
       - name: Create .env File
         run: |
           touch .env
-          echo "DB_USER=postgres" >> .env
-          echo "DB_PASSWORD=password" >> .env
-          echo "DB_NAME=AI-Analytics" >> .env
-          echo "ConnectionStrings__AiAnalyticsConnection=Host=db;Port=5432;Database=AI-Analytics;Username=postgres;Password=password" >> .env
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          echo "ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=${{ secrets.DB_NAME }};Username=${{ secrets.DB_USER }};Password=${{ secrets.DB_PASSWORD }}" >> .env
       - name: Restore and Build
         run: |
           dotnet restore 
