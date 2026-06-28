@@ -6,6 +6,8 @@
 [![Git Hooks](https://img.shields.io/badge/Git_Hooks-Enabled-blue?style=flat&logo=git&logoColor=white)](https://github.com/Omaremad763/AI-Analytics)
 [![Nginx](https://img.shields.io/badge/Nginx-009639?style=flat&logo=nginx&logoColor=white)](https://github.com/Omaremad763/AI-Analytics)
 [![Clean Architecture](https://img.shields.io/badge/Architecture-Clean--Architecture-blueviolet?style=flat)](https://github.com/Omaremad763/AI-Analytics)
+![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)
+![Groq AI](https://img.shields.io/badge/Groq%20AI-F55036?style=for-the-badge&logo=probot&logoColor=white)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat)](https://github.com/Omaremad763/AI-Analytics/blob/main/LICENSE)
 
 # 📊 AI Analytics Platform
