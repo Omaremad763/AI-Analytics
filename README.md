@@ -79,34 +79,21 @@ AI_Analytics.sln
 └── docker-compose.yml
 ```
 # 🖼️ Screenshots
-## Login
+## Upload Excel file 
 
-![Dashboard](docs/images/Login.png)
+![Dashboard](docs/images/Upload.png)
 
 ---
 
 ## Dashboard
 
-![Dashboard](docs/images/Dashboard.png)
+![Dashboard](docs/images/dashboard.png)
 
 ---
 
-## Products
+## Ainsights
 
-![Dashboard](docs/images/Products.png)
-
----
-
-## Categories
-
-![Dashboard](docs/images/Categories.png)
-
----
-
-## Suppliers
-
-
-![Dashboard](docs/images/Suppliers.png)
+![Dashboard](docs/images/Ainsights.png)
 
 ---
 
