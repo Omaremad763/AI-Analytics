@@ -8,94 +8,354 @@
 [![Clean Architecture](https://img.shields.io/badge/Architecture-Clean--Architecture-blueviolet?style=flat)](https://github.com/Omaremad763/AI-Analytics)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat)](https://github.com/Omaremad763/AI-Analytics/blob/main/LICENSE)
 
+# 📊 AI Analytics Platform
+
+> AI-powered Data Analytics System for processing financial Excel/CSV files, generating insights, and visualizing results through an interactive dashboard.
 
 ---
 
-# AI Analytics Platform
+# 🚀 Overview
 
-**Enterprise-Grade Financial Data Intelligence System**
+AI Analytics Platform is a full-stack system designed to:
 
-A robust, modular full-stack platform designed to transform raw financial data into actionable insights using AI-driven analytics. Built with **.NET 9** and **Angular 21**, this project serves as a showcase for clean architecture, CQRS patterns, and high-performance data processing pipelines.
+* Upload and process financial datasets (Excel / CSV)
+* Parse and store structured financial records
+* Generate analytics and KPIs
+* Produce AI-generated summaries per dataset batch
+* Visualize insights via an interactive dashboard
 
-## 🌟 Engineering Vision
-
-This project was designed to solve the complexity of large-scale data ingestion and analysis. Instead of monolithic structures, I implemented a **layered domain-driven approach** that ensures the system is testable, maintainable, and highly extensible.
-
----
-
-## 🏗️ System Architecture
-
-The system follows strict **Clean Architecture** principles, enforcing separation of concerns between business logic, infrastructure, and presentation.
-
-### High-Level Design
-
-* **Domain Layer:** Core entities (`FinancialRecord`, `DataBatch`) and business rules.
-* **Application Layer:** CQRS implementations using MediatR, DTOs, and application interfaces.
-* **Infrastructure Layer:** External integrations (OpenAI), database persistence (EF Core), and file processing services.
-* **Presentation Layer:** Modern REST API with global exception handling and middleware.
+The system is built using **Clean Architecture + CQRS + Background Processing**.
 
 ---
 
-## 🚀 Core Pillars
-
-### 1. Data Ingestion Pipeline (Phase I)
-
-* **Goal:** Efficiently ingest, parse, and validate complex financial spreadsheets.
-* **Technology:** Background processing with **Hangfire** to ensure non-blocking UI interactions during file parsing.
-* **Flow:** File Upload $\rightarrow$ Validation $\rightarrow$ Background Batch Processing $\rightarrow$ Status Polling.
-
-### 2. Analytics Dashboard (Phase II)
-
-* **Goal:** Real-time visualization of financial trends.
-* **Strategy:** Optimized SQL Views for high-performance read operations, providing aggregated data for charts and metrics.
-* **Components:** Modular components with reusable chart wrappers.
-
-### 3. AI Insights Engine (Phase III)
-
-* **Goal:** Providing intelligent summarization of financial data.
-* **Mechanism:** Asynchronous integration with **OpenAI API** triggered post-ingestion.
-* **UX Touch:** Typing animation to simulate a real-time conversational AI experience.
-
----
-
-## 🛠️ Technology Stack
-
-| Layer | Technologies |
-| --- | --- |
-| **Backend** | .NET 9, EF Core, MediatR (CQRS), Hangfire, FluentValidation |
-| **Database** | PostgreSQL |
-| **Frontend** | Angular 21 (Standalone), Tailwind CSS, RxJS |
-| **DevOps** | Docker, Docker Compose, GitHub Actions (CI/CD) |
-
----
-
-## 📁 Project Structure
+# 🧱 System Architecture
 
 ```text
-omaremad763-ai-analytics/
-├── Application/    # CQRS, DTOs, & Business Logic
-├── Domain/         # Entities & Enums
-├── Infrastructure/ # Persistence, External Services & Migrations
-├── Presentation/   # API Controllers & Middlewares
-└── Front/          # Angular Standalone Components & Pages
-
+Presentation Layer (ASP.NET Core API)
+        │
+Application Layer (CQRS + Services + DTOs)
+        │
+Domain Layer (Entities + Business Rules)
+        │
+Infrastructure Layer (DB + External Services + File Processing)
 ```
 
 ---
 
-## 🔐 Engineering Standards
+# 📁 Project Structure
 
-* **Robustness:** Global Exception Handling & Logging.
-* **Scalability:** CQRS pattern separates Read/Write models.
-* **Maintainability:** Dependency Injection via `DependenciesCollector`.
-* **Quality:** Automated testing project for critical ingestion workflows.
+```text
+AI_Analytics.sln
+│
+├── Presentation
+│   ├── Controllers
+│   ├── Middleware
+│   └── Program.cs
+│
+├── Application
+│   ├── CQRS
+│   ├── DTOs
+│   ├── Contracts
+│   └── AutoMapper
+│
+├── Domain
+│   ├── Entities
+│   └── Enums
+│
+├── Infrastructure
+│   ├── Persistence (EF Core)
+│   ├── Services
+│   ├── Repositories
+│   ├── Migrations
+│   └── Excel Parser
+│
+├── Front (Angular)
+│   ├── Pages
+│   ├── Core
+│   ├── Shared
+│   └── Services
+│
+├── AnalyticsTestProject
+└── docker-compose.yml
+```
+# 🖼️ Screenshots
+## Login
+
+![Dashboard](docs/images/Login.png)
 
 ---
 
-## 🤝 Contributing
+## Dashboard
 
-This project is part of a long-term engineering journey. Suggestions regarding architecture or performance improvements are highly appreciated.
-
-**Built with passion by [Omar Emad**]([https://www.linkedin.com/in/omar-abusaif/])
+![Dashboard](docs/images/Dashboard.png)
 
 ---
+
+## Products
+
+![Dashboard](docs/images/Products.png)
+
+---
+
+## Categories
+
+![Dashboard](docs/images/Categories.png)
+
+---
+
+## Suppliers
+
+
+![Dashboard](docs/images/Suppliers.png)
+
+---
+
+# 🎥 Demo
+
+Coming Soon...
+---
+
+# ⚙️ Core Modules
+
+## 📥 1. Data Ingestion Module
+
+### Purpose
+
+Handles file upload and background processing of datasets.
+
+### Backend Components
+
+* `DataBatch` Entity → tracks uploaded file state
+* `IDataBatchRepository`
+* `UploadFileCommand`
+* `ProcessFileCommand`
+* `ExcelParserService`
+* Background processing (Hangfire Job)
+
+### API Endpoints
+
+```
+POST /api/uploads/upload
+GET  /api/uploads/status/{id}
+```
+
+### Flow
+
+```text
+Upload File → Create Batch → Background Parsing → Store Financial Records → Update Status
+```
+
+---
+
+## 📊 2. Analytics Module
+
+### Purpose
+
+Transforms raw financial data into structured metrics and charts.
+
+### Domain
+
+* `FinancialRecord`
+
+### Application Layer
+
+* `GetFinancialMetricsQuery`
+* `GetTrendDataQuery`
+* `GetCategoryDistributionQuery`
+
+### DTOs
+
+* `MetricCardDto`
+* `ChartDataDto`
+
+### API Endpoints
+
+```
+GET /api/analytics/metrics
+GET /api/analytics/charts
+```
+
+### Output Types
+
+* KPI Cards
+* Line Chart (Trends)
+* Pie Chart (Distribution)
+
+---
+
+## 🤖 3. AI Insights Module
+
+### Purpose
+
+Generates AI-powered summaries per uploaded dataset batch.
+
+### Domain
+
+* `BatchSummary`
+
+### Application Layer
+
+* `GenerateAiSummaryCommand`
+* `GetBatchSummaryQuery`
+
+### Infrastructure
+
+* `OpenAIService` (API Wrapper)
+
+### API Endpoint
+
+```
+GET /api/analytics/ai-summary/{batchId}
+```
+
+### Output
+
+* Natural language financial summary
+* Batch-level insights
+
+---
+
+# 🖥️ Frontend (Angular)
+
+## Pages
+
+* Upload File Page
+* Analytics Dashboard
+* AI Summary Page
+
+## Components
+
+* `FileUploadComponent`
+* `StatsCardComponent`
+* `ChartWrapperComponent`
+* `AiSummaryCardComponent`
+
+## Behavior Flow
+
+```text
+Upload File → Receive BatchId → Polling Status → Load Dashboard → Render Charts → Fetch AI Summary
+```
+
+---
+
+# 🧠 Domain Model
+
+## Entities
+
+* `DataBatch`
+
+  * FileName
+  * Status
+  * UploadDate
+
+* `FinancialRecord`
+
+  * Parsed dataset rows
+
+* `BatchSummary`
+
+  * AI-generated summary text
+
+## Enums
+
+* `BatchStatusEnum`
+* `FinancialRecordsEnum`
+
+---
+
+# 🔄 Data Flow
+
+```text
+1. User uploads file (Excel/CSV)
+2. API creates DataBatch
+3. Background job parses file
+4. FinancialRecords stored in DB
+5. Analytics queries aggregate data
+6. AI service generates summary
+7. Frontend displays:
+   - KPIs
+   - Charts
+   - AI Insights
+```
+
+---
+
+# 🐳 Deployment
+
+## Docker Setup
+
+* ASP.NET Core API
+* Angular Frontend
+* Database (via Docker Compose)
+
+```bash
+docker-compose up --build
+```
+
+---
+
+# ⚙️ Infrastructure
+
+* EF Core (Database Layer)
+* Hangfire (Background Jobs)
+* AutoMapper (DTO Mapping)
+* OpenAI API Integration
+* SQL Views (Analytics Optimization)
+
+---
+
+# 🧪 Testing
+
+* AnalyticsTestProject included
+* CQRS unit testing (Data ingestion flow)
+
+---
+
+# 🚀 Key Design Decisions
+
+* CQRS used for separation of reads/writes
+* Background jobs for file processing
+* Batch-based processing model
+* Analytics optimized via SQL Views / aggregation layer
+* Modular service contracts for scalability
+* AI layer decoupled from analytics engine
+
+---
+
+# 📌 Future Improvements
+
+* Real-time updates (SignalR)
+* Advanced AI predictions
+* Streaming ingestion pipeline
+* Multi-tenant support
+* Role-based authentication
+* Export reports (PDF / Excel)
+* Performance optimization with caching layer
+
+---
+
+# 📄 License
+
+MIT License
+
+---
+
+# 👨‍💻 Author
+
+**Omar Emad**
+
+Software Engineer | Full Stack Development
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-blue?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/omar-abusaif/)
+> https://www.linkedin.com/in/omar-abusaif/
+
+Online Resume
+
+> (https://omar-emad.vercel.app
+### 📈 GitHub Stats
+![GitHub Stats](https://github-readme-stats.vercel.app/api?username=Omaremad763&show_icons=true&theme=radical&count_private=true)
+
+![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=Omaremad763&layout=compact&theme=radical)
+
+
+
